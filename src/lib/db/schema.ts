@@ -2,24 +2,16 @@ import { relations } from "drizzle-orm";
 import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
 import { clientTypes, fileTypes, projectStatuses } from "./enums/enums";
 
-
+//Tables
 // (Main table)
 export const companiesTable = pgTable("companies", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 255 }).notNull(),
+    workspace: varchar("workspace", { length: 255 }).notNull().unique(),
     description: text("description"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
-
-
-// Relations for companies table (main table)
-export const companiesRelations = relations(companiesTable, ({ many }) => ({
-    users: many(usersTable),
-    clients: many(clientsTable),
-    files: many(filesTable),
-    projects: many(projectsTable),
-}));
 
 export const usersTable = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -31,13 +23,13 @@ export const usersTable = pgTable("users", {
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 })
 
-export const usersRelations = relations(usersTable, ({ one }) => ({
-    company: one(companiesTable, {
-        fields: [usersTable.companyId],
-        references: [companiesTable.id],
-    }),
-}));
-
+export const userCompaniesTable = pgTable("user_companies", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => usersTable.id).notNull(),
+    companyId: uuid("company_id").references(() => companiesTable.id).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
 
 
 export const clientsTable = pgTable("clients", {
@@ -52,13 +44,6 @@ export const clientsTable = pgTable("clients", {
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const clientsRelations = relations(clientsTable, ({ one }) => ({
-    company: one(companiesTable, {
-        fields: [clientsTable.companyId],
-        references: [companiesTable.id]
-    })
-}));
-
 export const filesTable = pgTable("files", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 255 }).notNull(),
@@ -70,13 +55,6 @@ export const filesTable = pgTable("files", {
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const filesRelations = relations(filesTable, ({ one }) => ({
-    company: one(companiesTable, {
-        fields: [filesTable.companyId],
-        references: [companiesTable.id]
-    })
-}));
-
 export const projectsTable = pgTable("projects", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 255 }).notNull(),
@@ -87,12 +65,52 @@ export const projectsTable = pgTable("projects", {
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+
+
+//Relaciones 
+
+
+// Relations for companies table (main table)
+export const companiesRelations = relations(companiesTable, ({ many }) => ({
+    usersCompanies: many(userCompaniesTable),
+    clients: many(clientsTable),
+    files: many(filesTable),
+    projects: many(projectsTable),
+}));
+
+
+export const usersRelations = relations(usersTable, ({ many }) => ({
+    userCompanies: many(userCompaniesTable),
+}));
+
+export const userCompaniesRelations = relations(userCompaniesTable, ({ one }) => ({
+    user: one(usersTable, {
+        fields: [userCompaniesTable.userId],
+        references: [usersTable.id],
+    }),
+    company: one(companiesTable, {
+        fields: [userCompaniesTable.companyId],
+        references: [companiesTable.id],
+    }),
+}));
+
+export const clientsRelations = relations(clientsTable, ({ one }) => ({
+    company: one(companiesTable, {
+        fields: [clientsTable.companyId],
+        references: [companiesTable.id]
+    })
+}));
+
+export const filesRelations = relations(filesTable, ({ one }) => ({
+    company: one(companiesTable, {
+        fields: [filesTable.companyId],
+        references: [companiesTable.id]
+    })
+}));
+
 export const projectsRelations = relations(projectsTable, ({ one }) => ({
     company: one(companiesTable, {
         fields: [projectsTable.companyId],
         references: [companiesTable.id]
     })
 }))
-
-
-

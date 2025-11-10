@@ -1,0 +1,141 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  /* Background - Blanco del logo */
+  --background: #ffffff;
+  /* Foreground - Negro del logo */
+  --foreground: #000000;
+  /* Card - Blanco */
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  /* Primary - Amarillo vibrante del logo (#FDD000) */
+  --primary: #fdd000;
+  --primary-foreground: #000000;
+  /* Secondary - Gris del logo (#BDBDBD) */
+  --secondary: #bdbdbd;
+  --secondary-foreground: #000000;
+  /* Muted - Gris más claro basado en el logo */
+  --muted: #f5f5f5;
+  --muted-foreground: #666666;
+  /* Accent - Amarillo más suave para acentos */
+  --accent: #fef4cc;
+  --accent-foreground: #000000;
+  /* Destructive - Rojo para errores (mantener para UX) */
+  --destructive: #dc2626;
+  /* Borders e inputs - Gris del logo más claro */
+  --border: #e5e5e5;
+  --input: #fafafa;
+  --ring: #fdd000;
+  /* Charts - Basados en la paleta del logo */
+  --chart-1: #fdd000;
+  --chart-2: #bdbdbd;
+  --chart-3: #000000;
+  --chart-4: #fef4cc;
+  --chart-5: #f5f5f5;
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #fdd000;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #f5f5f5;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: #fdd000;
+}
+
+.dark {
+  /* Dark mode - Manteniendo la temática del logo */
+  --background: #1a1a1a;
+  --foreground: #ffffff;
+  --card: #262626;
+  --card-foreground: #ffffff;
+  --popover: #262626;
+  --popover-foreground: #ffffff;
+  /* Primary - Amarillo del logo (más vibrante en modo oscuro) */
+  --primary: #fdd000;
+  --primary-foreground: #000000;
+  /* Secondary - Gris del logo adaptado para modo oscuro */
+  --secondary: #404040;
+  --secondary-foreground: #ffffff;
+  /* Muted - Grises oscuros */
+  --muted: #2a2a2a;
+  --muted-foreground: #bdbdbd;
+  /* Accent - Amarillo más oscuro para acentos */
+  --accent: #3a3a3a;
+  --accent-foreground: #fdd000;
+  /* Destructive */
+  --destructive: #ef4444;
+  /* Borders */
+  --border: #404040;
+  --input: #2a2a2a;
+  --ring: #fdd000;
+  /* Charts - Basados en la paleta del logo */
+  --chart-1: #fdd000;
+  --chart-2: #bdbdbd;
+  --chart-3: #ffffff;
+  --chart-4: #fef4cc;
+  --chart-5: #404040;
+  /* Sidebar */
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #fdd000;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #2a2a2a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #404040;
+  --sidebar-ring: #fdd000;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
