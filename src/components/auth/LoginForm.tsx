@@ -75,31 +75,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+    <div className="w-full">
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2">
           Bienvenido
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Inicia sesión para acceder a tu empresa
         </p>
       </div>
 
-      <form action={formAction} className="space-y-6">
+      <form action={formAction} className="space-y-4 sm:space-y-6">
         {state && state !== 'Success' && typeof state === 'string' && (
-          <div className={`rounded-lg border p-4 text-sm ${state === 'EMAIL_NOT_VERIFIED'
+          <div className={`rounded-lg border p-3 sm:p-4 text-xs sm:text-sm ${state === 'EMAIL_NOT_VERIFIED'
             ? 'border-yellow-500/40 bg-yellow-50 text-yellow-900'
             : 'border-destructive/40 bg-destructive/10 text-destructive'
             }`}>
             <div className="flex items-start gap-2">
-              <span className={`font-semibold ${state === 'EMAIL_NOT_VERIFIED' ? 'text-yellow-600' : 'text-destructive'}`}>•</span>
-              <div className="flex-1">
-                <p className="font-medium mb-1">
+              <span className={`font-semibold flex-shrink-0 ${state === 'EMAIL_NOT_VERIFIED' ? 'text-yellow-600' : 'text-destructive'}`}>•</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium mb-1 text-xs sm:text-sm">
                   {state === 'EMAIL_NOT_VERIFIED' ? 'Correo no verificado' : 'Error al iniciar sesión'}
                 </p>
                 {state === 'EMAIL_NOT_VERIFIED' ? (
-                  <div className="space-y-3">
-                    <p>
+                  <div className="space-y-2 sm:space-y-3">
+                    <p className="text-xs sm:text-sm">
                       Tu correo electrónico no está verificado. Por favor, verifica tu correo antes de iniciar sesión.
                     </p>
                     <div className="flex flex-col gap-2">
@@ -107,17 +107,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
                         type="button"
                         onClick={handleResendVerification}
                         disabled={isResendingEmail || !formData.email}
-                        className="flex items-center justify-center gap-2 text-sm font-medium text-yellow-900 bg-yellow-100 hover:bg-yellow-200 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-yellow-900 bg-yellow-100 hover:bg-yellow-200 px-3 sm:px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isResendingEmail ? (
                           <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Enviando...
+                            <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
+                            <span>Enviando...</span>
                           </>
                         ) : (
                           <>
-                            <MailCheck className="h-4 w-4" />
-                            Reenviar correo de verificación
+                            <MailCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            <span>Reenviar correo de verificación</span>
                           </>
                         )}
                       </button>
@@ -132,7 +132,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
                     </div>
                   </div>
                 ) : (
-                  <p>{state}</p>
+                  <p className="text-xs sm:text-sm break-words">{state}</p>
                 )}
               </div>
             </div>
@@ -166,25 +166,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
           required
         />
 
-        <div className="flex items-center justify-between">
-          <label className="flex items-center">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+          <label className="flex items-center cursor-pointer">
             <input
               type="checkbox"
-              className="rounded border-input text-primary focus:ring-2 focus:ring-ring"
+              className="rounded border-input text-primary focus:ring-2 focus:ring-ring w-4 h-4"
             />
-            <span className="ml-2 text-sm text-muted-foreground">
+            <span className="ml-2 text-xs sm:text-sm text-muted-foreground">
               Recordarme
             </span>
           </label>
           <a
-            href="/forgot-password"
-            className="text-sm text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
+            href="/auth/forgot-password"
+            className="text-xs sm:text-sm text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
           >
             ¿Olvidaste tu contraseña?
           </a>
         </div>
 
-        <Button type="submit" variant="primary" size="lg" className="w-full cursor-pointer hover:bg-primary/90 transition-all duration-200">
+        <Button type="submit" variant="primary" size="lg" className="w-full cursor-pointer hover:bg-primary/90 transition-all duration-200 text-sm sm:text-base">
           {isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
@@ -193,8 +193,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
         </Button>
       </form>
 
-      <div className="mt-6 text-center">
-        <p className="text-sm text-muted-foreground">
+      <div className="mt-4 sm:mt-6 text-center">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           ¿No tienes una cuenta?{' '}
           <button
             type="button"

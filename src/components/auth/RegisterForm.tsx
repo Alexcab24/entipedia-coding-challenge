@@ -32,24 +32,24 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
   const [state, formAction] = useActionState(registerUser, registerInitialState);
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+    <div className="w-full">
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2">
           Crear cuenta
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Regístrate para comenzar a usar Entipedia
         </p>
       </div>
 
-      <form action={formAction} className="space-y-6" noValidate>
+      <form action={formAction} className="space-y-4 sm:space-y-6" noValidate>
         {state.status === 'error' && state.message && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 sm:p-4 text-xs sm:text-sm text-destructive">
             <div className="flex items-start gap-2">
-              <span className="text-destructive font-semibold">•</span>
-              <div>
+              <span className="text-destructive font-semibold flex-shrink-0">•</span>
+              <div className="flex-1 min-w-0">
                 <p className="font-medium mb-1">Error al crear la cuenta</p>
-                <p>{state.message}</p>
+                <p className="break-words">{state.message}</p>
               </div>
             </div>
           </div>
@@ -111,10 +111,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
           <input
             type="checkbox"
             id="terms"
-            className="mt-1 rounded border-input text-primary focus:ring-2 focus:ring-ring"
+            className="mt-1 rounded border-input text-primary focus:ring-2 focus:ring-ring w-4 h-4 flex-shrink-0"
             required
           />
-          <label htmlFor="terms" className="ml-2 text-sm text-muted-foreground">
+          <label htmlFor="terms" className="ml-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
             Acepto los{' '}
             <a
               href="#"
@@ -135,8 +135,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
         <SubmitButton />
       </form>
 
-      <div className="mt-6 text-center">
-        <p className="text-sm text-muted-foreground">
+      <div className="mt-4 sm:mt-6 text-center">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           ¿Ya tienes una cuenta?{' '}
           <button
             type="button"

@@ -7,10 +7,27 @@ import { eq } from 'drizzle-orm';
 import bcryptjs from 'bcryptjs';
 
 export const authConfig: NextAuthConfig = {
+    session: {
+        strategy: 'jwt',
+    },
     pages: {
         signIn: '/',
         newUser: '/',
         signOut: '/logout',
+    },
+    callbacks: {
+        async session({ session, token }) {
+            if (session.user && token.sub) {
+                session.user.id = token.sub;
+            }
+            return session;
+        },
+        async jwt({ token, user }) {
+            if (user) {
+                token.sub = user.id;
+            }
+            return token;
+        },
     },
     providers: [
 
