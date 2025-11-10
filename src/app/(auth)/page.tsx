@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
@@ -9,6 +10,8 @@ type ViewMode = 'login' | 'register';
 
 export default function Home() {
   const [viewMode, setViewMode] = useState<ViewMode>('login');
+  const searchParams = useSearchParams();
+  const resetSuccess = searchParams.get('reset') === 'success';
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,6 +44,17 @@ export default function Home() {
           {/* Right side - Auth Forms */}
           <div className="w-full lg:w-1/2 max-w-md">
             <div className="bg-card border border-border/50 rounded-2xl shadow-2xl p-6 lg:p-10 backdrop-blur-sm">
+              {resetSuccess && (
+                <div className="mb-6 rounded-lg border border-green-500/40 bg-green-50 p-4 text-sm text-green-900">
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 font-semibold">✓</span>
+                    <div>
+                      <p className="font-medium mb-1">Contraseña restablecida</p>
+                      <p>Tu contraseña ha sido actualizada exitosamente. Ahora puedes iniciar sesión.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
               {viewMode === 'login' ? (
                 <LoginForm
                   onSwitchToRegister={() => setViewMode('register')}

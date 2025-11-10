@@ -4,8 +4,9 @@ import React, { useActionState, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock, Loader2, MailCheck } from 'lucide-react';
 import { authenticate } from '@/lib/actions/auth/login';
+import { resendVerificationEmail } from '@/lib/actions/auth/resendVerification';
 
 
 interface LoginFormProps {
@@ -21,7 +22,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
     if (state === 'Success') {
       router.push('/workspaces');
     }
-  }, [state]);
+  }, [state, router]);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -33,27 +34,44 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
     password: '',
   });
 
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
+  const [resendMessage, setResendMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    // Clear error when user starts typing
+
     if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({
         ...prev,
         [name]: '',
       }));
     }
+
+    if (resendMessage) {
+      setResendMessage(null);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement validation and login logic
-    console.log('Login form submitted:', formData);
-   
-    router.push('/workspaces');
+  const handleResendVerification = async () => {
+    if (!formData.email) {
+      setResendMessage({ type: 'error', text: 'Por favor, ingresa tu correo electrónico primero.' });
+      return;
+    }
+
+    setIsResendingEmail(true);
+    setResendMessage(null);
+
+    const result = await resendVerificationEmail(formData.email);
+
+    setIsResendingEmail(false);
+    setResendMessage({
+      type: result.ok ? 'success' : 'error',
+      text: result.message || 'Ocurrió un error al reenviar el correo.',
+    });
   };
 
   return (
@@ -68,6 +86,59 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
       </div>
 
       <form action={formAction} className="space-y-6">
+        {state && state !== 'Success' && typeof state === 'string' && (
+          <div className={`rounded-lg border p-4 text-sm ${state === 'EMAIL_NOT_VERIFIED'
+            ? 'border-yellow-500/40 bg-yellow-50 text-yellow-900'
+            : 'border-destructive/40 bg-destructive/10 text-destructive'
+            }`}>
+            <div className="flex items-start gap-2">
+              <span className={`font-semibold ${state === 'EMAIL_NOT_VERIFIED' ? 'text-yellow-600' : 'text-destructive'}`}>•</span>
+              <div className="flex-1">
+                <p className="font-medium mb-1">
+                  {state === 'EMAIL_NOT_VERIFIED' ? 'Correo no verificado' : 'Error al iniciar sesión'}
+                </p>
+                {state === 'EMAIL_NOT_VERIFIED' ? (
+                  <div className="space-y-3">
+                    <p>
+                      Tu correo electrónico no está verificado. Por favor, verifica tu correo antes de iniciar sesión.
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        type="button"
+                        onClick={handleResendVerification}
+                        disabled={isResendingEmail || !formData.email}
+                        className="flex items-center justify-center gap-2 text-sm font-medium text-yellow-900 bg-yellow-100 hover:bg-yellow-200 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isResendingEmail ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            <MailCheck className="h-4 w-4" />
+                            Reenviar correo de verificación
+                          </>
+                        )}
+                      </button>
+                      {resendMessage && (
+                        <p className={`text-xs ${resendMessage.type === 'success'
+                          ? 'text-green-700'
+                          : 'text-red-700'
+                          }`}>
+                          {resendMessage.text}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p>{state}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         <Input
           id="email"
           name="email"
@@ -91,6 +162,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
           onChange={handleChange}
           error={errors.password}
           icon={<Lock className="h-5 w-5" />}
+          showPasswordToggle
           required
         />
 
@@ -105,12 +177,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
             </span>
           </label>
           <a
-            href="#"
+            href="/forgot-password"
             className="text-sm text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
-            onClick={(e) => {
-              e.preventDefault();
-              // TODO: Implement forgot password
-            }}
           >
             ¿Olvidaste tu contraseña?
           </a>

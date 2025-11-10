@@ -1,55 +1,35 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User, Loader2 } from 'lucide-react';
+import { registerUser } from '@/lib/actions/auth/register';
+import { registerInitialState } from '@/lib/actions/auth/register.types';
 
 interface RegisterFormProps {
   onSwitchToLogin?: () => void;
 }
 
-interface UserData {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+const SubmitButton = () => {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button
+      type="submit"
+      variant="primary"
+      size="lg"
+      className="w-full cursor-pointer hover:bg-primary/90 transition-all duration-200"
+      disabled={pending}
+    >
+      {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Crear cuenta'}
+    </Button>
+  );
+};
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
-  const router = useRouter();
-  const [userData, setUserData] = useState<UserData>({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-
-  const [errors, setErrors] = useState<Partial<Record<keyof UserData, string>>>({});
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUserData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Clear error when user starts typing
-    if (errors[name as keyof UserData]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement validation and registration logic
-    console.log('User registration:', userData);
-    // Después del registro exitoso, redirigir a la página de workspaces
-    router.push('/workspaces');
-  };
+  const [state, formAction] = useActionState(registerUser, registerInitialState);
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -62,17 +42,29 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form action={formAction} className="space-y-6" noValidate>
+        {state.status === 'error' && state.message && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+            <div className="flex items-start gap-2">
+              <span className="text-destructive font-semibold">•</span>
+              <div>
+                <p className="font-medium mb-1">Error al crear la cuenta</p>
+                <p>{state.message}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <Input
           id="fullName"
           name="fullName"
           label="Nombre completo"
           type="text"
           placeholder="Juan Pérez García"
-          value={userData.fullName}
-          onChange={handleChange}
-          error={errors.fullName}
+          defaultValue={state.values?.fullName ?? ''}
+          autoComplete="name"
           icon={<User className="h-5 w-5" />}
+          error={state.fieldErrors?.fullName}
           required
         />
 
@@ -82,10 +74,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
           label="Correo electrónico"
           type="email"
           placeholder="tu@correo.com"
-          value={userData.email}
-          onChange={handleChange}
-          error={errors.email}
+          defaultValue={state.values?.email ?? ''}
+          autoComplete="email"
           icon={<Mail className="h-5 w-5" />}
+          error={state.fieldErrors?.email}
           required
         />
 
@@ -95,10 +87,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
           label="Contraseña"
           type="password"
           placeholder="••••••••"
-          value={userData.password}
-          onChange={handleChange}
-          error={errors.password}
+          autoComplete="new-password"
           icon={<Lock className="h-5 w-5" />}
+          error={state.fieldErrors?.password}
+          showPasswordToggle
           required
         />
 
@@ -108,10 +100,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
           label="Confirmar contraseña"
           type="password"
           placeholder="••••••••"
-          value={userData.confirmPassword}
-          onChange={handleChange}
-          error={errors.confirmPassword}
+          autoComplete="new-password"
           icon={<Lock className="h-5 w-5" />}
+          error={state.fieldErrors?.confirmPassword}
+          showPasswordToggle
           required
         />
 
@@ -124,19 +116,23 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
           />
           <label htmlFor="terms" className="ml-2 text-sm text-muted-foreground">
             Acepto los{' '}
-            <a href="#" className="text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer">
+            <a
+              href="#"
+              className="text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
+            >
               términos y condiciones
             </a>{' '}
             y la{' '}
-            <a href="#" className="text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer">
+            <a
+              href="#"
+              className="text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
+            >
               política de privacidad
             </a>
           </label>
         </div>
 
-        <Button type="submit" variant="primary" size="lg" className="w-full">
-          Crear cuenta
-        </Button>
+        <SubmitButton />
       </form>
 
       <div className="mt-6 text-center">

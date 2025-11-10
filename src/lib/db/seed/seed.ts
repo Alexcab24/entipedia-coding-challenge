@@ -57,6 +57,9 @@ export const seed = async () => {
             email: string;
             password: string;
             companyId: string;
+            emailVerifiedAt: Date;
+            verificationToken: string | null;
+            verificationTokenExpiresAt: Date | null;
         }
         const usersToCreate: UserToCreate[] = [];
         const usersForCompany: typeof allUsers = [];
@@ -74,6 +77,9 @@ export const seed = async () => {
                     email: email,
                     password: passwords[index],
                     companyId: company.id,
+                    emailVerifiedAt: new Date(),
+                    verificationToken: null,
+                    verificationTokenExpiresAt: null,
                 });
             }
         });

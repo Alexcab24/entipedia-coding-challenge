@@ -34,6 +34,10 @@ export const authConfig: NextAuthConfig = {
                     throw new Error('Invalid credentials');
                 }
 
+                if (!user.emailVerifiedAt) {
+                    throw new Error('Email not verified');
+                }
+
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { password: _, ...rest } = user;
                 return rest;
