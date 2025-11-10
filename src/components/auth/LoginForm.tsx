@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import { Mail, Lock, Loader2, MailCheck } from 'lucide-react';
 import { authenticate } from '@/lib/actions/auth/login';
 import { resendVerificationEmail } from '@/lib/actions/auth/resendVerification';
+import { routes } from '@/router/routes';
 
 
 interface LoginFormProps {
@@ -20,7 +21,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
 
   useEffect(() => {
     if (state === 'Success') {
-      router.push('/workspaces');
+      router.push(routes.workspaces);
     }
   }, [state, router]);
 
@@ -177,7 +178,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
             </span>
           </label>
           <a
-            href="/auth/forgot-password"
+            href={routes.forgotPassword}
             className="text-xs sm:text-sm text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
           >
             ¿Olvidaste tu contraseña?

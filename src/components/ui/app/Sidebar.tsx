@@ -11,6 +11,7 @@ import {
     Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { routes } from '@/router/routes';
 
 interface SidebarProps {
     workspace: string;
@@ -19,27 +20,27 @@ interface SidebarProps {
 const navigation = [
     {
         name: 'Dashboard',
-        href: (workspace: string) => `/${workspace}/dashboard`,
+        href: (workspace: string) => `/${workspace}${routes.dashboard}`,
         icon: LayoutDashboard,
     },
     {
         name: 'Proyectos',
-        href: (workspace: string) => `/${workspace}/projects`,
+        href: (workspace: string) => `/${workspace}${routes.projects}`,
         icon: FolderKanban,
     },
     {
         name: 'Clientes',
-        href: (workspace: string) => `/${workspace}/clients`,
+        href: (workspace: string) => `/${workspace}${routes.clients}`,
         icon: Users,
     },
     {
         name: 'Archivos',
-        href: (workspace: string) => `/${workspace}/files`,
+        href: (workspace: string) => `/${workspace}${routes.files}`,
         icon: FileText,
     },
     {
         name: 'Configuración',
-        href: (workspace: string) => `/${workspace}/settings`,
+        href: (workspace: string) => `/${workspace}${routes.settings}`,
         icon: Settings,
     },
 ];

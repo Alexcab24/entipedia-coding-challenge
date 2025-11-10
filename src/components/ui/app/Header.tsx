@@ -53,7 +53,7 @@ export default function Header({ workspaceName, userName }: HeaderProps) {
 
                 <div className="flex items-center gap-2 lg:gap-3">
                     {userName && (
-                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/80 hover:bg-secondary transition-colors text-sm border border-border/50">
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-secondary transition-colors text-sm border border-border/50">
                             <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
                                 <User className="h-3.5 w-3.5 text-primary" />
                             </div>

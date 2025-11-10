@@ -22,7 +22,7 @@ export default async function WorkspaceLayout({ children, params }: WorkspaceLay
     }
 
     const { workspace } = await params;
-
+ 
     const [company] = await db
         .select({
             id: companiesTable.id,

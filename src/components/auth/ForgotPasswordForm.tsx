@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import { Mail, Loader2, ArrowLeft } from 'lucide-react';
 import { forgotPassword } from '@/lib/actions/auth/forgot-password';
 import { forgotPasswordInitialState } from '@/lib/actions/auth/forgot-password.types';
+import { routes } from '@/router/routes';
 
 const SubmitButton = () => {
     const { pending } = useFormStatus();
@@ -80,7 +81,7 @@ export default function ForgotPasswordForm() {
 
             <div className="mt-6 text-center">
                 <Link
-                    href="/"
+                    href={routes.home}
                     className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                     <ArrowLeft className="h-4 w-4" />

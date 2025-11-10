@@ -10,6 +10,7 @@ import CreateWorkspaceModal from './CreateWorkspaceModal';
 import WorkspacesHeader from './WorkspacesHeader';
 import WorkspacesList from './WorkspacesList';
 import type { Workspace } from '@/lib/actions/workspaces/get-workspaces';
+import { routes } from '@/router/routes';
 
 interface WorkspacesPageClientProps {
     workspaces: Workspace[];
@@ -23,14 +24,14 @@ export default function WorkspacesPageClient({ workspaces }: WorkspacesPageClien
         console.log('workspaceId', workspaceId);
         const workspace = workspaces.find((w) => w.id === workspaceId);
         if (workspace) {
-            router.push(`/${workspace.workspace}/dashboard`);
+            router.push(`/${workspace.workspace}/${routes.dashboard}`);
         }
     };
 
     const handleLogout = async () => {
         try {
             await logout();
-            router.push('/');
+            router.push(routes.home);
             router.refresh();
         } catch (error) {
             console.error('Error during logout:', error);
