@@ -11,6 +11,7 @@ import { deleteClient } from '@/lib/actions/clients/delete-client';
 import Button from '../Button';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../card';
+import ClientsSearchBar from './ClientsSearchBar';
 import { toast } from 'sonner';
 
 interface ClientsPageClientProps {
@@ -36,6 +37,7 @@ export default function ClientsPageClient({
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const fetchClients = useCallback(async (page: number) => {
         setIsLoading(true);
@@ -122,10 +124,19 @@ export default function ClientsPageClient({
             </div>
 
             <Card>
-                <CardHeader>
-                    <CardTitle>
-                        Lista de Clientes
-                    </CardTitle>
+                <CardHeader className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <CardTitle className="text-2xl font-bold text-foreground">
+                            Lista de Clientes
+                        </CardTitle>
+                    </div>
+                    <div className="mt-4 w-full sm:w-auto">
+                        <ClientsSearchBar
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                            placeholder="Buscar clientes"
+                        />
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
@@ -134,16 +145,16 @@ export default function ClientsPageClient({
                         </div>
                     ) : (
                         <>
-                          
+
                             {/* Desktop: Table View */}
                             <div className="hidden lg:block">
-                            <ClientsTable
-                                clients={clients}
-                                onUpdate={handleUpdate}
-                                onDelete={handleDeleteClick}
-                            />
+                                <ClientsTable
+                                    clients={clients}
+                                    onUpdate={handleUpdate}
+                                    onDelete={handleDeleteClick}
+                                />
                             </div>
-                          
+
 
                             {/* Mobile: Card View */}
                             <div className="lg:hidden">

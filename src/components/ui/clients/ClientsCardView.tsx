@@ -16,14 +16,17 @@ export default function ClientsCardView({
 }: ClientsCardViewProps) {
     if (clients.length === 0) {
         return (
-            <div className="text-center py-12 text-muted-foreground">
-                <p>No hay clientes registrados</p>
+            <div className="text-center py-16 text-muted-foreground">
+                <div className="flex flex-col items-center gap-2">
+                    <p className="text-base font-medium">No hay clientes registrados</p>
+                    <p className="text-sm text-muted-foreground/70">Comienza agregando tu primer cliente</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-5 md:gap-6">
             {clients.map((client) => (
                 <ClientCard
                     key={client.id}

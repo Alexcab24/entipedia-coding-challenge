@@ -93,25 +93,27 @@ export default function ClientCard({
             const truncatedText = isTruncated ? notesText.substring(0, maxLength) + '...' : notesText;
 
             return (
-                <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                        {icon}
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">
+                        <div className="p-1.5 rounded-lg bg-muted/50">
+                            {icon}
+                        </div>
                         <span>{label}</span>
                     </div>
                     {notesText ? (
                         <Popover>
                             <PopoverTrigger asChild>
                                 <button
-                                    className="w-full text-left text-sm text-foreground hover:text-primary transition-colors cursor-pointer p-2 rounded-md hover:bg-muted/50"
+                                    className="w-full text-left text-base text-foreground hover:text-primary transition-all duration-150 cursor-pointer p-4 rounded-xl hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent flex items-start gap-3 group border-2 border-transparent hover:border-primary/20 active:scale-[0.98] active:bg-primary/10 min-h-[56px]"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleFieldClick(field, currentValue);
                                     }}
                                 >
-                                    <div className="flex items-start gap-2">
-                                        <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                                        <p className="line-clamp-3 break-words flex-1">{truncatedText}</p>
+                                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors shrink-0">
+                                        <FileText className="h-5 w-5 text-primary" />
                                     </div>
+                                    <p className="line-clamp-3 break-words flex-1 font-medium text-base">{truncatedText}</p>
                                 </button>
                             </PopoverTrigger>
                             <PopoverContent
@@ -132,14 +134,16 @@ export default function ClientCard({
                         </Popover>
                     ) : (
                         <button
-                            className="w-full text-left text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer p-2 rounded-md hover:bg-muted/50 flex items-center gap-2"
+                            className="w-full text-left text-base text-muted-foreground hover:text-primary transition-all duration-150 cursor-pointer p-4 rounded-xl hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent flex items-center gap-3 border-2 border-dashed border-border hover:border-primary/30 active:scale-[0.98] active:bg-primary/10 min-h-[56px]"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleFieldClick(field, currentValue);
                             }}
                         >
-                            <FileText className="h-4 w-4" />
-                            <span>Agregar notas...</span>
+                            <div className="p-2 rounded-lg bg-muted/50">
+                                <FileText className="h-5 w-5" />
+                            </div>
+                            <span className="font-medium">Agregar notas...</span>
                         </button>
                     )}
                 </div>
@@ -147,21 +151,79 @@ export default function ClientCard({
         }
 
         if (!isEditing) {
+            // Special rendering for type field with badge
+            if (field === 'type') {
+                const isIndividual = displayValue === 'Persona';
+                return (
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">
+                            <div className="p-1.5 rounded-lg bg-muted/50">
+                                {icon}
+                            </div>
+                            <span>{label}</span>
+                        </div>
+                        <button
+                            className="w-full text-left cursor-pointer active:scale-[0.98] transition-all"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleFieldClick(field, currentValue);
+                            }}
+                        >
+                            <span className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-bold shadow-md transition-all active:scale-95 ${isIndividual
+                                    ? 'bg-gradient-to-br from-blue-100 to-blue-50 text-blue-800 dark:from-blue-950/50 dark:to-blue-900/30 dark:text-blue-300 border-2 border-blue-200/60 dark:border-blue-800/50'
+                                    : 'bg-gradient-to-br from-purple-100 to-purple-50 text-purple-800 dark:from-purple-950/50 dark:to-purple-900/30 dark:text-purple-300 border-2 border-purple-200/60 dark:border-purple-800/50'
+                                }`}>
+                                {isIndividual ? <User className="h-5 w-5" /> : <Building2 className="h-5 w-5" />}
+                                {displayValue}
+                            </span>
+                        </button>
+                    </div>
+                );
+            }
+
+            // Special rendering for value field
+            if (field === 'value' && displayValue !== '-') {
+                return (
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">
+                            <div className="p-1.5 rounded-lg bg-muted/50">
+                                {icon}
+                            </div>
+                            <span>{label}</span>
+                        </div>
+                        <button
+                            className="w-full text-left cursor-pointer p-4 rounded-xl hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all active:scale-[0.98] border-2 border-transparent hover:border-primary/20 active:bg-primary/10 min-h-[56px]"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleFieldClick(field, currentValue);
+                            }}
+                        >
+                            <div className="inline-flex items-baseline gap-2.5 px-4 py-3 rounded-xl bg-primary/5 border-2 border-primary/20">
+                                <span className="text-primary text-2xl font-bold">$</span>
+                                <span className="text-xl font-bold text-foreground">{displayValue.replace('$', '').trim()}</span>
+                            </div>
+                        </button>
+                    </div>
+                );
+            }
+
             return (
-                <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                        {icon}
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">
+                        <div className="p-1.5 rounded-lg bg-muted/50">
+                            {icon}
+                        </div>
                         <span>{label}</span>
                     </div>
                     <button
-                        className="w-full text-left text-sm text-foreground hover:text-primary transition-colors cursor-pointer p-2 rounded-md hover:bg-muted/50 flex items-center justify-between group"
+                        className="w-full text-left text-base text-foreground hover:text-primary active:scale-[0.98] transition-all duration-150 cursor-pointer p-4 rounded-xl hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent flex items-center justify-between group/field border-2 border-transparent hover:border-primary/20 active:bg-primary/10 min-h-[56px]"
                         onClick={(e) => {
                             e.stopPropagation();
                             handleFieldClick(field, currentValue);
                         }}
                     >
-                        <span className="flex-1">{displayValue || '-'}</span>
-                        <Edit2 className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+                        <span className="flex-1 font-semibold text-base">{displayValue || <span className="text-muted-foreground/50 italic font-normal">—</span>}</span>
+                        <Edit2 className="h-5 w-5 opacity-0 group-hover/field:opacity-60 transition-opacity text-primary shrink-0" />
                     </button>
                 </div>
             );
@@ -170,12 +232,14 @@ export default function ClientCard({
 
         if (inputType === 'select') {
             return (
-                <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                        {icon}
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">
+                        <div className="p-1.5 rounded-lg bg-muted/50">
+                            {icon}
+                        </div>
                         <span>{label}</span>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         <Select
                             value={editValue || 'individual'}
                             onValueChange={(value) => {
@@ -189,7 +253,7 @@ export default function ClientCard({
                                 }
                             }}
                         >
-                            <SelectTrigger className="flex-1">
+                            <SelectTrigger className="flex-1 rounded-xl border-2 h-12 text-base">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -199,11 +263,11 @@ export default function ClientCard({
                         </Select>
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="lg"
                             onClick={handleCancel}
-                            className="h-10 w-10 p-0"
+                            className="h-12 w-12 p-0 rounded-xl hover:bg-destructive/10 hover:text-destructive min-w-[48px]"
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-5 w-5" />
                         </Button>
                     </div>
                 </div>
@@ -212,17 +276,19 @@ export default function ClientCard({
 
         if (inputType === 'date') {
             return (
-                <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                        {icon}
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">
+                        <div className="p-1.5 rounded-lg bg-muted/50">
+                            {icon}
+                        </div>
                         <span>{label}</span>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
                                     variant="outline"
-                                    className="flex-1 justify-start text-left font-normal"
+                                    className="flex-1 justify-start text-left font-normal rounded-xl border-2 h-12 text-base"
                                 >
                                     {editValue ? format(parseLocalDateString(editValue), 'PPP', { locale: es }) : 'Seleccionar fecha'}
                                 </Button>
@@ -248,11 +314,11 @@ export default function ClientCard({
                         </Popover>
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="lg"
                             onClick={handleCancel}
-                            className="h-10 w-10 p-0"
+                            className="h-12 w-12 p-0 rounded-xl hover:bg-destructive/10 hover:text-destructive min-w-[48px]"
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-5 w-5" />
                         </Button>
                     </div>
                 </div>
@@ -261,12 +327,14 @@ export default function ClientCard({
 
         if (inputType === 'currency') {
             return (
-                <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                        {icon}
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">
+                        <div className="p-1.5 rounded-lg bg-muted/50">
+                            {icon}
+                        </div>
                         <span>{label}</span>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3 items-center">
                         <Input
                             type="text"
                             value={editValue}
@@ -283,25 +351,25 @@ export default function ClientCard({
                                 }
                             }}
                             autoFocus
-                            className="flex-1"
+                            className="flex-1 rounded-xl border-2 h-12 text-base"
                             placeholder="0.00"
                         />
-                        <span className="text-sm text-muted-foreground self-center px-2">DOP</span>
+                        <span className="text-base text-muted-foreground self-center px-4 py-3 rounded-xl bg-muted/50 font-semibold whitespace-nowrap">DOP</span>
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="lg"
                             onClick={() => handleSave(field)}
-                            className="h-10 w-10 p-0"
+                            className="h-12 w-12 p-0 rounded-xl hover:bg-primary/10 hover:text-primary border-2 border-transparent hover:border-primary/20 min-w-[48px]"
                         >
-                            <Check className="h-4 w-4" />
+                            <Check className="h-5 w-5" />
                         </Button>
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="lg"
                             onClick={handleCancel}
-                            className="h-10 w-10 p-0"
+                            className="h-12 w-12 p-0 rounded-xl hover:bg-destructive/10 hover:text-destructive min-w-[48px]"
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-5 w-5" />
                         </Button>
                     </div>
                 </div>
@@ -310,12 +378,14 @@ export default function ClientCard({
 
         if (inputType === 'textarea' || field === 'notes') {
             return (
-                <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                        {icon}
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">
+                        <div className="p-1.5 rounded-lg bg-muted/50">
+                            {icon}
+                        </div>
                         <span>{label}</span>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                         <textarea
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
@@ -328,22 +398,24 @@ export default function ClientCard({
                                 }
                             }}
                             autoFocus
-                            className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors resize-none min-h-[80px]"
-                            rows={4}
+                            className="flex w-full rounded-xl border-2 border-input bg-background px-4 py-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors resize-none min-h-[140px]"
+                            rows={5}
                             placeholder="Agregar notas..."
                         />
-                        <div className="flex gap-2 justify-end">
+                        <div className="flex gap-3 justify-end">
                             <Button
                                 variant="outline"
-                                size="sm"
+                                size="lg"
                                 onClick={handleCancel}
+                                className="rounded-xl border-2 min-h-[48px] px-6"
                             >
                                 Cancelar
                             </Button>
                             <Button
                                 variant="primary"
-                                size="sm"
+                                size="lg"
                                 onClick={() => handleSave(field)}
+                                className="rounded-xl shadow-md hover:shadow-lg transition-shadow min-h-[48px] px-6"
                             >
                                 Guardar
                             </Button>
@@ -354,12 +426,14 @@ export default function ClientCard({
         }
 
         return (
-            <div className="space-y-1.5">
-                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    {icon}
+            <div className="space-y-3">
+                <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">
+                    <div className="p-1.5 rounded-lg bg-muted/50">
+                        {icon}
+                    </div>
                     <span>{label}</span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3 items-center">
                     <Input
                         type="text"
                         value={editValue}
@@ -373,23 +447,23 @@ export default function ClientCard({
                             }
                         }}
                         autoFocus
-                        className="flex-1"
+                        className="flex-1 rounded-xl border-2 h-12 text-base"
                     />
                     <Button
                         variant="ghost"
-                        size="sm"
+                        size="lg"
                         onClick={() => handleSave(field)}
-                        className="h-10 w-10 p-0"
+                        className="h-12 w-12 p-0 rounded-xl hover:bg-primary/10 hover:text-primary border-2 border-transparent hover:border-primary/20 min-w-[48px]"
                     >
-                        <Check className="h-4 w-4" />
+                        <Check className="h-5 w-5" />
                     </Button>
                     <Button
                         variant="ghost"
-                        size="sm"
+                        size="lg"
                         onClick={handleCancel}
-                        className="h-10 w-10 p-0"
+                        className="h-12 w-12 p-0 rounded-xl hover:bg-destructive/10 hover:text-destructive min-w-[48px]"
                     >
-                        <X className="h-4 w-4" />
+                        <X className="h-5 w-5" />
                     </Button>
                 </div>
             </div>
@@ -397,31 +471,47 @@ export default function ClientCard({
     };
 
     return (
-        <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4 space-y-4">
-
-                <div className="flex items-start justify-between gap-2 pb-3 border-b">
+        <Card className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-transparent hover:border-l-primary overflow-hidden group bg-gradient-to-br from-card via-card/95 to-card/90 active:scale-[0.99]">
+            <CardContent className="p-6 md:p-7 space-y-6">
+                {/* Header con nombre y acciones */}
+                <div className="flex items-start justify-between gap-4 pb-5 border-b-2 border-primary/20">
                     <div className="flex-1 min-w-0">
-                        {renderEditableField(
-                            'name',
-                            'Nombre',
-                            client.name,
-                            <User className="h-4 w-4" />,
-                            'text'
+                        {editingField === 'name' ? (
+                            renderEditableField('name', 'Nombre', client.name, <User className="h-4 w-4" />, 'text')
+                        ) : (
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2.5 text-xs font-bold text-primary/70 uppercase tracking-wider">
+                                    <div className="p-2 rounded-lg bg-primary/10">
+                                        <User className="h-4 w-4" />
+                                    </div>
+                                    <span>Nombre</span>
+                                </div>
+                                <button
+                                    className="w-full text-left cursor-pointer group/name active:scale-[0.98]"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFieldClick('name', client.name);
+                                    }}
+                                >
+                                    <h3 className="text-2xl font-bold text-foreground hover:text-primary transition-colors group-hover/name:text-primary">
+                                        {client.name || <span className="text-muted-foreground/50 italic">—</span>}
+                                    </h3>
+                                </button>
+                            </div>
                         )}
                     </div>
                     <Button
-                        variant="outline"
-                        size="sm"
+                        variant="ghost"
+                        size="lg"
                         onClick={() => onDelete(client)}
-                        className="shrink-0"
+                        className="shrink-0 hover:bg-destructive/10 hover:text-destructive transition-all duration-200 opacity-50 group-hover:opacity-100 rounded-xl hover:scale-110 active:scale-95 min-w-[48px] min-h-[48px]"
                     >
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <Trash2 className="h-5 w-5" />
                     </Button>
                 </div>
 
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-6">
                     {renderEditableField(
                         'email',
                         'Email',
@@ -454,7 +544,7 @@ export default function ClientCard({
                         'currency'
                     )}
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                         {renderEditableField(
                             'dateFrom',
                             'Desde',
