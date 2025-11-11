@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, numeric, date } from "drizzle-orm/pg-core";
 import { clientTypes, fileTypes, projectStatuses } from "./enums/enums";
 
 //Tables
@@ -44,6 +44,9 @@ export const clientsTable = pgTable("clients", {
     email: varchar("email", { length: 255 }).notNull().unique(),
     phone: varchar("phone", { length: 255 }).notNull(),
     companyId: uuid("company_id").references(() => companiesTable.id).notNull(),
+    value: numeric("value", { precision: 15, scale: 2 }),
+    dateFrom: date("date_from"),
+    dateTo: date("date_to"),
     notes: text("notes"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

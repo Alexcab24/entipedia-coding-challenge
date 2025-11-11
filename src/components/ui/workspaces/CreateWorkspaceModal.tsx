@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,7 +41,9 @@ const SubmitButton = () => {
 };
 
 const CreateWorkspaceModal = ({ showCreateModal, setShowCreateModal }: CreateWorkspaceModalProps) => {
-    const [state, formAction, isPending] = useActionState(createWorkspace, createWorkspaceInitialState);
+    const [state, formAction, isPendingAction] = useActionState(createWorkspace, createWorkspaceInitialState);
+    const [isPending, startTransition] = useTransition();
+    const isPendingFinal = isPending || isPendingAction;
 
     const {
         register,
@@ -60,6 +62,10 @@ const CreateWorkspaceModal = ({ showCreateModal, setShowCreateModal }: CreateWor
     });
 
     const onSubmit = async (data: CreateWorkspaceSchema) => {
+        if (isPendingFinal) {
+            return;
+        }
+
         const formData = new FormData();
         formData.append('name', data.name);
         formData.append('email', data.email);
@@ -68,7 +74,10 @@ const CreateWorkspaceModal = ({ showCreateModal, setShowCreateModal }: CreateWor
         if (data.description) {
             formData.append('description', data.description);
         }
-        formAction(formData);
+
+        startTransition(() => {
+            formAction(formData);
+        });
     };
 
 
@@ -93,7 +102,7 @@ const CreateWorkspaceModal = ({ showCreateModal, setShowCreateModal }: CreateWor
                     <button
                         onClick={() => setShowCreateModal(false)}
                         className="text-muted-foreground hover:text-foreground transition-colors shrink-0 cursor-pointer"
-                        disabled={isPending}
+                        disabled={isPendingFinal}
                         aria-label="Cerrar modal"
                     >
                         <X className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -185,7 +194,7 @@ const CreateWorkspaceModal = ({ showCreateModal, setShowCreateModal }: CreateWor
                             variant="outline"
                             onClick={() => setShowCreateModal(false)}
                             className="flex-1 "
-                            disabled={isPending}
+                            disabled={isPendingFinal}
                         >
                             Cancelar
                         </Button>
