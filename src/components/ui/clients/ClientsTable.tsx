@@ -42,20 +42,44 @@ export default function ClientsTable({
     const [editingCell, setEditingCell] = useState<{
         clientId: string;
         field: string;
+        originalValue: string | null;
     } | null>(null);
     const [editValue, setEditValue] = useState<string>('');
 
     const handleCellClick = (clientId: string, field: string, currentValue: string | null) => {
-        setEditingCell({ clientId, field });
+        setEditingCell({ clientId, field, originalValue: currentValue });
         setEditValue(currentValue || '');
     };
 
-    const handleSave = async (clientId: string, field: string, value?: string) => {
+    const normalizeValue = (value: string | null, field: string, client?: Client): string | null => {
+        if (field === 'notes') {
+            return value === '' ? '' : (value || null);
+        }
+        if (field === 'value') {
+            if (!value || value.trim() === '') return null;
+            const numericValue = value.replace(/[^\d.,]/g, '').replace(',', '.').trim();
+            return numericValue === '' ? null : numericValue;
+        }
+        return value || null;
+    };
+
+    const getOriginalValue = (client: Client, field: string): string | null => {
+        const currentValue = client[field as keyof Client] as string | null;
+        return currentValue;
+    };
+
+    const handleSave = async (clientId: string, field: string, value?: string, client?: Client) => {
+        if (!editingCell) return;
+
         const valueToSave = value !== undefined ? value : editValue;
-        const finalValue = field === 'notes'
-            ? (valueToSave === '' ? '' : valueToSave || null)
-            : (valueToSave || null);
-        await onUpdate(clientId, field, finalValue);
+        const finalValue = normalizeValue(valueToSave || null, field, client);
+        const originalValue = normalizeValue(editingCell.originalValue, field, client);
+
+
+        if (finalValue !== originalValue) {
+            await onUpdate(clientId, field, finalValue);
+        }
+
         setEditingCell(null);
         setEditValue('');
     };
@@ -76,7 +100,7 @@ export default function ClientsTable({
         inputType: 'text' | 'select' | 'currency' | 'date' | 'textarea' = 'text'
     ) => {
         const isEditing = editingCell?.clientId === client.id && editingCell?.field === field;
-        const currentValue = client[field as keyof Client] as string | null;
+        const currentValue = getOriginalValue(client, field);
 
 
         if (field === 'notes' && !isEditing) {
@@ -141,9 +165,15 @@ export default function ClientsTable({
                         value={editValue || 'individual'}
                         onValueChange={(value) => {
                             setEditValue(value);
-                            setTimeout(() => {
-                                handleSave(client.id, field, value);
-                            }, 0);
+
+                            const originalValue = editingCell?.originalValue || '';
+                            if (value !== originalValue) {
+                                setTimeout(() => {
+                                    handleSave(client.id, field, value, client);
+                                }, 0);
+                            } else {
+                                handleCancel();
+                            }
                         }}
                     >
                         <SelectTrigger className="w-full">
@@ -177,7 +207,12 @@ export default function ClientsTable({
                                 onSelect={(date) => {
                                     if (date) {
                                         const dateValue = formatDateToLocalString(date);
-                                        handleSave(client.id, field, dateValue);
+                                        const originalValue = editingCell?.originalValue || null;
+                                        if (dateValue !== originalValue) {
+                                            handleSave(client.id, field, dateValue);
+                                        } else {
+                                            handleCancel();
+                                        }
                                     }
                                 }}
                                 initialFocus
@@ -266,7 +301,7 @@ export default function ClientsTable({
     };
 
     return (
-        <div className="rounded-md border">
+        <div className="hidden lg:block rounded-md border overflow-x-auto">
             <Table>
                 <TableHeader>
                     <TableRow>

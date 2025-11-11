@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import ClientsTable from './ClientsTable';
+import ClientsCardView from './ClientsCardView';
 import CreateClientDialog from './CreateClientDialog';
 import DeleteClientDialog from './DeleteClientDialog';
 import { Client, getClients } from '@/lib/actions/clients/get-clients';
@@ -103,16 +104,17 @@ export default function ClientsPageClient({
 
     return (
         <div className="w-full space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground">Clientes</h1>
-                    <p className="text-muted-foreground mt-1">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Clientes</h1>
+                    <p className="text-muted-foreground mt-1 text-sm sm:text-base">
                         Gestiona tus clientes y su información
                     </p>
                 </div>
                 <Button
                     variant="primary"
                     onClick={() => setIsDialogOpen(true)}
+                    className="w-full sm:w-auto"
                 >
                     <Plus className="h-4 w-4 mr-2" />
                     Crear Cliente
@@ -122,7 +124,7 @@ export default function ClientsPageClient({
             <Card>
                 <CardHeader>
                     <CardTitle>
-                        Lista de Clientes ({total} {total === 1 ? 'cliente' : 'clientes'})
+                        Lista de Clientes
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -132,11 +134,25 @@ export default function ClientsPageClient({
                         </div>
                     ) : (
                         <>
+                          
+                            {/* Desktop: Table View */}
+                            <div className="hidden lg:block">
                             <ClientsTable
                                 clients={clients}
                                 onUpdate={handleUpdate}
                                 onDelete={handleDeleteClick}
                             />
+                            </div>
+                          
+
+                            {/* Mobile: Card View */}
+                            <div className="lg:hidden">
+                                <ClientsCardView
+                                    clients={clients}
+                                    onUpdate={handleUpdate}
+                                    onDelete={handleDeleteClick}
+                                />
+                            </div>
 
                             {/* Pagination */}
                             {totalPages > 1 && (
@@ -152,7 +168,7 @@ export default function ClientsPageClient({
                                             disabled={currentPage === 1 || isLoading}
                                         >
                                             <ChevronLeft className="h-4 w-4" />
-                                            Anterior
+                                            <span className="hidden sm:inline">Anterior</span>
                                         </Button>
                                         <Button
                                             variant="outline"
@@ -160,7 +176,7 @@ export default function ClientsPageClient({
                                             onClick={() => handlePageChange(currentPage + 1)}
                                             disabled={currentPage === totalPages || isLoading}
                                         >
-                                            Siguiente
+                                            <span className="hidden sm:inline">Siguiente</span>
                                             <ChevronRight className="h-4 w-4" />
                                         </Button>
                                     </div>
