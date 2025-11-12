@@ -170,8 +170,8 @@ export default function ClientCard({
                             }}
                         >
                             <span className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-bold shadow-md transition-all active:scale-95 ${isIndividual
-                                    ? 'bg-gradient-to-br from-blue-100 to-blue-50 text-blue-800 dark:from-blue-950/50 dark:to-blue-900/30 dark:text-blue-300 border-2 border-blue-200/60 dark:border-blue-800/50'
-                                    : 'bg-gradient-to-br from-purple-100 to-purple-50 text-purple-800 dark:from-purple-950/50 dark:to-purple-900/30 dark:text-purple-300 border-2 border-purple-200/60 dark:border-purple-800/50'
+                                ? 'bg-gradient-to-br from-blue-100 to-blue-50 text-blue-800 dark:from-blue-950/50 dark:to-blue-900/30 dark:text-blue-300 border-2 border-blue-200/60 dark:border-blue-800/50'
+                                : 'bg-gradient-to-br from-purple-100 to-purple-50 text-purple-800 dark:from-purple-950/50 dark:to-purple-900/30 dark:text-purple-300 border-2 border-purple-200/60 dark:border-purple-800/50'
                                 }`}>
                                 {isIndividual ? <User className="h-5 w-5" /> : <Building2 className="h-5 w-5" />}
                                 {displayValue}

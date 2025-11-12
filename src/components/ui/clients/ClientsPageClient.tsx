@@ -10,7 +10,6 @@ import { updateClient } from '@/lib/actions/clients/update-client';
 import { deleteClient } from '@/lib/actions/clients/delete-client';
 import Button from '../Button';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../card';
 import ClientsSearchBar from './ClientsSearchBar';
 import { toast } from 'sonner';
 
@@ -123,22 +122,20 @@ export default function ClientsPageClient({
                 </Button>
             </div>
 
-            <Card>
-                <CardHeader className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <CardTitle className="text-2xl font-bold text-foreground">
-                            Lista de Clientes
-                        </CardTitle>
-                    </div>
-                    <div className="mt-4 w-full sm:w-auto">
+            <div className="rounded-xl border border-border/60 bg-card shadow-md overflow-hidden">
+                <div className="bg-primary/50 backdrop-blur-md border-b-2 border-primary/30 px-6 py-4">
+                    <h2 className="text-2xl font-bold text-primary-foreground">
+                        Lista de Clientes
+                    </h2>
+                </div>
+                <div className="p-6 space-y-4">
+                    <div className="w-full sm:w-auto">
                         <ClientsSearchBar
                             value={searchQuery}
                             onChange={setSearchQuery}
                             placeholder="Buscar clientes"
                         />
                     </div>
-                </CardHeader>
-                <CardContent>
                     {isLoading ? (
                         <div className="flex items-center justify-center py-8">
                             <div className="text-muted-foreground">Cargando...</div>
@@ -195,8 +192,8 @@ export default function ClientsPageClient({
                             )}
                         </>
                     )}
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
             {isDialogOpen && (
                 <CreateClientDialog

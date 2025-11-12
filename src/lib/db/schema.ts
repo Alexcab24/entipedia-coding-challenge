@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { pgTable, uuid, varchar, text, timestamp, numeric, date } from "drizzle-orm/pg-core";
-import { clientTypes, fileTypes, projectStatuses } from "./enums/enums";
+import { clientTypes, fileTypes, projectStatuses, projectPriorities } from "./enums/enums";
 
 //Tables
 // (Main table)
@@ -67,7 +67,8 @@ export const projectsTable = pgTable("projects", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 255 }).notNull(),
     description: text("description"),
-    status: projectStatuses("status").default("active").notNull(),
+    status: text("status").default("active").notNull(),
+    priority: projectPriorities("priority").default("medium").notNull(),
     companyId: uuid("company_id").references(() => companiesTable.id).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

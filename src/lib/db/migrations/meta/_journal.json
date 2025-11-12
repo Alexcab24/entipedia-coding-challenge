@@ -43,6 +43,13 @@
       "when": 1762817485611,
       "tag": "0005_greedy_george_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1762892409784,
+      "tag": "0006_loose_strong_guy",
+      "breakpoints": true
     }
   ]
 }
