@@ -30,7 +30,7 @@ export async function getProjects(
 
     try {
         const projects = await db
-            .select()
+            .select()   
             .from(projectsTable)
             .where(eq(projectsTable.companyId, companyId))
             .orderBy(desc(projectsTable.createdAt));
