@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import { auth } from '@/auth.config';
 import { revalidatePath } from 'next/cache';
 import { deleteClientSchema } from './schemas/delete-client.schema';
+import { routes } from '@/router/routes';
 
 export interface DeleteClientState {
     status: 'success' | 'error';
@@ -37,7 +38,7 @@ export async function deleteClient(
 
         await db.delete(clientsTable).where(eq(clientsTable.id, parsedResult.data.clientId));
 
-        revalidatePath('/clients');
+        revalidatePath(routes.clients);
 
         return {
             status: 'success',

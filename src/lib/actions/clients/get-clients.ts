@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db';
 import { clientsTable } from '@/lib/db/schema';
-import { eq, sql, desc } from 'drizzle-orm';
+import { eq, sql, desc, or, ilike, and } from 'drizzle-orm';
 import { auth } from '@/auth.config';
 
 export interface Client {
@@ -22,7 +22,8 @@ export interface Client {
 export async function getClients(
     companyId: string,
     page: number = 1,
-    pageSize: number = 10
+    pageSize: number = 10,
+    query: string = ''
 ): Promise<{ clients: Client[]; total: number; totalPages: number }> {
     const session = await auth();
 
@@ -33,18 +34,31 @@ export async function getClients(
     try {
         const offset = (page - 1) * pageSize;
 
+        // search conditions
+        const companyCondition = eq(clientsTable.companyId, companyId);
+        const whereClause = query
+            ? and(
+                companyCondition,
+                or(
+                    ilike(clientsTable.name, `%${query}%`),
+                    ilike(clientsTable.email, `%${query}%`),
+                    ilike(clientsTable.phone, `%${query}%`)
+                )
+            )
+            : companyCondition;
+
         const [clients, totalResult] = await Promise.all([
             db
                 .select()
                 .from(clientsTable)
-                .where(eq(clientsTable.companyId, companyId))
+                .where(whereClause)
                 .limit(pageSize)
                 .offset(offset)
                 .orderBy(desc(clientsTable.createdAt)),
             db
                 .select({ count: sql<number>`count(*)::int` })
                 .from(clientsTable)
-                .where(eq(clientsTable.companyId, companyId)),
+                .where(whereClause),
         ]);
 
         const total = Number(totalResult[0]?.count || 0);

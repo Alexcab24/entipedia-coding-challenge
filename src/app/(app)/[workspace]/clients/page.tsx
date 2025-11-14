@@ -3,20 +3,20 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { companiesTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { getClients } from '@/lib/actions/clients/get-clients';
-import ClientsPageClient from '@/components/ui/clients/ClientsPageClient';
+import ClientsPage from '@/components/ui/clients/ClientsPage';
 import { routes } from '@/router/routes';
 
-interface ClientsPageProps {
+interface PageProps {
     params: Promise<{
         workspace: string;
     }>;
     searchParams: Promise<{
+        query?: string;
         page?: string;
     }>;
 }
 
-export default async function ClientsPage({ params, searchParams }: ClientsPageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
     const session = await auth();
 
     if (!session?.user?.id) {
@@ -24,9 +24,9 @@ export default async function ClientsPage({ params, searchParams }: ClientsPageP
     }
 
     const { workspace } = await params;
-    const { page } = await searchParams;
-    const currentPage = parseInt(page || '1', 10);
-
+    const resolvedSearchParams = await searchParams;
+    const query = resolvedSearchParams?.query || '';
+    const currentPage = parseInt(resolvedSearchParams?.page || '1', 10);
 
     const [company] = await db
         .select()
@@ -38,16 +38,11 @@ export default async function ClientsPage({ params, searchParams }: ClientsPageP
         redirect(routes.workspaces);
     }
 
-
-    const { clients, total, totalPages } = await getClients(company.id, currentPage, 10);
-
     return (
-        <ClientsPageClient
+        <ClientsPage
             companyId={company.id}
-            initialClients={clients}
-            initialTotal={total}
-            initialTotalPages={totalPages}
-            initialPage={currentPage}
+            page={currentPage}
+            query={query}
         />
     );
 }

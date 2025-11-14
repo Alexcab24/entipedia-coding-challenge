@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useTransition } from 'react';
+import { useState, useEffect, useRef, useTransition, useActionState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
     Dialog,
@@ -22,6 +22,9 @@ import {
 import { Loader2, Upload, Link2, FileText, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { FileType } from './FilesPageClient';
+import { uploadFile } from '@/lib/actions/files/upload-file';
+import { uploadFileInitialState } from '@/lib/actions/files/upload-file.types';
+
 
 interface CreateFileDialogProps {
     open: boolean;
@@ -49,10 +52,14 @@ export default function CreateFileDialog({
     const [isPending, startTransition] = useTransition();
     const [uploadMethod, setUploadMethod] = useState<UploadMethod>('file');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    console.log('selectedFile', selectedFile?.type);
     const processedSuccessRef = useRef(false);
     const onSuccessRef = useRef(onSuccess);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
+    const [state, formAction, isPendingAction] = useActionState(
+        uploadFile,
+        uploadFileInitialState
+    );
     useEffect(() => {
         onSuccessRef.current = onSuccess;
     }, [onSuccess]);
@@ -74,7 +81,7 @@ export default function CreateFileDialog({
     });
 
     const fileType = watch('type');
-    const fileName = watch('name');
+  
 
     useEffect(() => {
         if (open) {
@@ -93,11 +100,15 @@ export default function CreateFileDialog({
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+
         if (file) {
+
+            //deteccion automatica de nombre y tipo de archivo
             setSelectedFile(file);
             setValue('name', file.name);
-            // Auto-detect file type from extension
-            const extension = file.name.split('.').pop()?.toLowerCase();
+
+            const extension = file.type.split('/')[1];
+            console.log('extension: ', extension);
             if (extension === 'pdf') setValue('type', 'pdf');
             else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension || '')) setValue('type', 'image');
             else if (['mp4', 'avi', 'mov', 'wmv', 'flv'].includes(extension || '')) setValue('type', 'video');
@@ -120,10 +131,28 @@ export default function CreateFileDialog({
             return;
         }
 
+        const formData = new FormData();
+        formData.append('companyId', companyId);
+        formData.append('name', data.name);
+        formData.append('type', data.type);
+        if (selectedFile) {
+            formData.append('file', selectedFile);
+        }
+        formData.append('url', data.url || '');
+        if (data.description) formData.append('description', data.description);
+
         startTransition(async () => {
             try {
+                // const result = await uploadFile(uploadFileInitialState, formData);
+
+
+
+
+
                 // TODO: Implement when backend is ready
-                // For now, just show success message
+
+                formAction(formData);
+
                 processedSuccessRef.current = true;
                 toast.success('Archivo creado exitosamente');
                 onOpenChange(false);
@@ -142,6 +171,11 @@ export default function CreateFileDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
+            {state.status === 'error' && state.message && (
+                <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+                    {state.message}
+                </div>
+            )}
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
@@ -162,11 +196,10 @@ export default function CreateFileDialog({
                         <button
                             type="button"
                             onClick={() => setUploadMethod('file')}
-                            className={`p-4 rounded-xl border-2 transition-all ${
-                                uploadMethod === 'file'
-                                    ? 'border-primary bg-primary/10 shadow-md'
-                                    : 'border-border hover:border-primary/50 bg-background'
-                            }`}
+                            className={`p-4 rounded-xl border-2 transition-all ${uploadMethod === 'file'
+                                ? 'border-primary bg-primary/10 shadow-md'
+                                : 'border-border hover:border-primary/50 bg-background'
+                                }`}
                         >
                             <div className="flex flex-col items-center gap-2">
                                 <Upload className={`h-6 w-6 ${uploadMethod === 'file' ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -178,11 +211,10 @@ export default function CreateFileDialog({
                         <button
                             type="button"
                             onClick={() => setUploadMethod('url')}
-                            className={`p-4 rounded-xl border-2 transition-all ${
-                                uploadMethod === 'url'
-                                    ? 'border-primary bg-primary/10 shadow-md'
-                                    : 'border-border hover:border-primary/50 bg-background'
-                            }`}
+                            className={`p-4 rounded-xl border-2 transition-all ${uploadMethod === 'url'
+                                ? 'border-primary bg-primary/10 shadow-md'
+                                : 'border-border hover:border-primary/50 bg-background'
+                                }`}
                         >
                             <div className="flex flex-col items-center gap-2">
                                 <Link2 className={`h-6 w-6 ${uploadMethod === 'url' ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -260,7 +292,7 @@ export default function CreateFileDialog({
                                     <Link2 className="h-4 w-4" />
                                 </div>
                                 <Input
-                                    {...register('url', { 
+                                    {...register('url', {
                                         required: uploadMethod === 'url' ? 'La URL es requerida' : false,
                                         pattern: uploadMethod === 'url' ? {
                                             value: /^https?:\/\/.+/,
@@ -296,7 +328,8 @@ export default function CreateFileDialog({
                         </label>
                         <Select
                             onValueChange={(value) => setValue('type', value as FileType)}
-                            defaultValue="other"
+                            defaultValue={fileType || 'other'}
+                            value={fileType || 'other'}
                             disabled={uploadMethod === 'file' && !!selectedFile}
                         >
                             <SelectTrigger>
