@@ -30,13 +30,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  // const session = await auth();
-
-  // if (!session) {
-  //   redirect('/');
-  // }
-
   return (
     <html lang="es">
       <body

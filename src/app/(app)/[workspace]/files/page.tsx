@@ -1,4 +1,3 @@
-
 import { auth } from '@/auth.config';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
@@ -6,7 +5,7 @@ import { companiesTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import FilesPageClient from '@/components/ui/files/FilesPageClient';
 import { routes } from '@/router/routes';
-import { mockFiles } from '@/components/ui/files/mockFiles';
+import { getFiles } from '@/lib/actions/files/get-files';
 
 interface FilesPageProps {
     params: Promise<{
@@ -38,20 +37,13 @@ export default async function FilesPage({ params, searchParams }: FilesPageProps
         redirect(routes.workspaces);
     }
 
-    // Using mock data for UI preview
-    // TODO: Replace with real data when backend is ready
-    const itemsPerPage = 10;
-    const totalMockFiles = mockFiles.length;
-    const totalPages = Math.ceil(totalMockFiles / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedMockFiles = mockFiles.slice(startIndex, endIndex);
+    const { files, total, totalPages } = await getFiles(company.id, currentPage, 10);
 
     return (
         <FilesPageClient
             companyId={company.id}
-            initialFiles={paginatedMockFiles}
-            initialTotal={totalMockFiles}
+            initialFiles={files}
+            initialTotal={total}
             initialTotalPages={totalPages}
             initialPage={currentPage}
         />

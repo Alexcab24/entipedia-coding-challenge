@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import FilesTable from './FilesTable';
 import FilesCardView from './FilesCardView';
 import CreateFileDialog from './CreateFileDialog';
@@ -9,7 +9,7 @@ import Button from '../Button';
 import { ChevronLeft, ChevronRight, Upload, FileText } from 'lucide-react';
 import FilesSearchBar from './FilesSearchBar';
 import { toast } from 'sonner';
-import { mockFiles, File, FileType } from './mockFiles';
+import { File, FileType, getFiles } from '@/lib/actions/files/get-files';
 
 export type { File, FileType };
 
@@ -28,45 +28,47 @@ export default function FilesPageClient({
     initialTotalPages = 1,
     initialPage = 1,
 }: FilesPageClientProps) {
-
-    const isUsingMockData = initialFiles.length === 0;
-    const allFiles = isUsingMockData ? mockFiles : initialFiles;
-
-    const [files, setFiles] = useState<File[]>(initialFiles.length > 0 ? initialFiles : allFiles);
+    const [files, setFiles] = useState<File[]>(initialFiles);
     const [currentPage, setCurrentPage] = useState(initialPage);
-    const [totalPages, setTotalPages] = useState(
-        isUsingMockData ? Math.ceil(mockFiles.length / 10) : initialTotalPages
-    );
-    const [total, setTotal] = useState(isUsingMockData ? mockFiles.length : initialTotal);
+    const [totalPages, setTotalPages] = useState(initialTotalPages);
+    const [total, setTotal] = useState(initialTotal);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
+    const fetchFiles = useCallback(async (page: number) => {
+        setIsLoading(true);
+        try {
+            const result = await getFiles(companyId, page, 10);
+            setFiles(result.files);
+            setTotalPages(result.totalPages);
+            setTotal(result.total);
+            setCurrentPage(page);
+        } catch (error) {
+            console.error('Error fetching files:', error);
+            toast.error('Error al cargar los archivos');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [companyId]);
 
-    const searchFilteredFiles = allFiles.filter((file) => {
-        if (!searchQuery) return true;
-        const query = searchQuery.toLowerCase();
-        return (
-            file.name.toLowerCase().includes(query) ||
-            (file.description?.toLowerCase().includes(query) ?? false) ||
-            file.type.toLowerCase().includes(query)
-        );
-    });
-
-
-    const itemsPerPage = 10;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const filteredFiles = searchFilteredFiles.slice(startIndex, endIndex);
-    const filteredTotalPages = Math.ceil(searchFilteredFiles.length / itemsPerPage);
+    const searchFilteredFiles = useMemo(() => {
+        return files.filter((file) => {
+            if (!searchQuery) return true;
+            const query = searchQuery.toLowerCase();
+            return (
+                file.name.toLowerCase().includes(query) ||
+                (file.description?.toLowerCase().includes(query) ?? false) ||
+                file.type.toLowerCase().includes(query)
+            );
+        });
+    }, [files, searchQuery]);
 
     const handleCreateSuccess = useCallback(() => {
-        // TODO: Implement when backend is ready
-
-        window.location.reload();
-    }, []);
+        fetchFiles(currentPage);
+    }, [fetchFiles, currentPage]);
 
     const handleDeleteClick = (file: File) => {
         setFileToDelete(file);
@@ -74,34 +76,17 @@ export default function FilesPageClient({
     };
 
     const handleDeleteConfirm = async (fileId: string) => {
-        // TODO: Implement when backend is ready
-
-        setFiles((prevFiles) => prevFiles.filter((f) => f.id !== fileId));
-        setTotal((prevTotal) => prevTotal - 1);
+        // TODO: Implement delete when backend is ready
+        await fetchFiles(currentPage);
         toast.success('Archivo eliminado exitosamente');
     };
 
     const handlePageChange = (newPage: number) => {
-        const maxPages = searchQuery ? filteredTotalPages : totalPages;
-        if (newPage >= 1 && newPage <= maxPages) {
-            setCurrentPage(newPage);
+        if (newPage >= 1 && newPage <= totalPages) {
+            fetchFiles(newPage);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
-
-
-    useEffect(() => {
-        if (isUsingMockData) {
-            const itemsPerPage = 10;
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginated = searchFilteredFiles.slice(startIndex, endIndex);
-            const calculatedTotalPages = Math.ceil(searchFilteredFiles.length / itemsPerPage);
-            setFiles(paginated);
-            setTotalPages(calculatedTotalPages);
-            setTotal(searchFilteredFiles.length);
-        }
-    }, [currentPage, searchQuery, isUsingMockData, searchFilteredFiles]);
 
     return (
         <div className="w-full space-y-6">
@@ -150,7 +135,7 @@ export default function FilesPageClient({
                             {/* Desktop: Table View */}
                             <div className="hidden lg:block">
                                 <FilesTable
-                                    files={filteredFiles}
+                                    files={searchQuery ? searchFilteredFiles : files}
                                     onDelete={handleDeleteClick}
                                 />
                             </div>
@@ -158,16 +143,16 @@ export default function FilesPageClient({
                             {/* Mobile: Card View */}
                             <div className="lg:hidden">
                                 <FilesCardView
-                                    files={filteredFiles}
+                                    files={searchQuery ? searchFilteredFiles : files}
                                     onDelete={handleDeleteClick}
                                 />
                             </div>
 
                             {/* Pagination */}
-                            {(searchQuery ? filteredTotalPages : totalPages) > 1 && (
+                            {totalPages > 1 && !searchQuery && (
                                 <div className="flex items-center justify-between mt-4">
                                     <div className="text-sm text-muted-foreground">
-                                        Página {currentPage} de {searchQuery ? filteredTotalPages : totalPages} ({searchQuery ? searchFilteredFiles.length : total} archivos)
+                                        Página {currentPage} de {totalPages} ({total} archivos)
                                     </div>
                                     <div className="flex gap-2">
                                         <Button
@@ -183,12 +168,18 @@ export default function FilesPageClient({
                                             variant="outline"
                                             size="sm"
                                             onClick={() => handlePageChange(currentPage + 1)}
-                                            disabled={currentPage === (searchQuery ? filteredTotalPages : totalPages) || isLoading}
+                                            disabled={currentPage === totalPages || isLoading}
                                         >
                                             <span className="hidden sm:inline">Siguiente</span>
                                             <ChevronRight className="h-4 w-4" />
                                         </Button>
                                     </div>
+                                </div>
+                            )}
+
+                            {searchQuery && searchFilteredFiles.length === 0 && (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    No se encontraron archivos que coincidan con tu búsqueda.
                                 </div>
                             )}
                         </>

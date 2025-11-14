@@ -41,7 +41,7 @@ export default function EditProjectDialog({
     project,
     onSuccess,
 }: EditProjectDialogProps) {
- 
+
     const updateProjectAction = useMemo(
         () => async (prevState: UpdateProjectFormData, formData: FormData): Promise<UpdateProjectFormData> => {
             if (!project) {
@@ -98,7 +98,7 @@ export default function EditProjectDialog({
             setValue('status', project.status || 'active');
             setValue('priority', project.priority || 'medium');
         }
-    }, [project, open, reset, setValue]);
+    }, [project?.id, open, reset, setValue]);
 
     useEffect(() => {
         if (open) {
