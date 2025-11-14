@@ -3,11 +3,10 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { companiesTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import FilesPageClient from '@/components/ui/files/FilesPageClient';
+import FilesPage from '@/components/ui/files/FilesPage';
 import { routes } from '@/router/routes';
-import { getFiles } from '@/lib/actions/files/get-files';
 
-interface FilesPageProps {
+interface PageProps {
     params: Promise<{
         workspace: string;
     }>;
@@ -16,7 +15,7 @@ interface FilesPageProps {
     }>;
 }
 
-export default async function FilesPage({ params, searchParams }: FilesPageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
     const session = await auth();
 
     if (!session?.user?.id) {
@@ -24,8 +23,8 @@ export default async function FilesPage({ params, searchParams }: FilesPageProps
     }
 
     const { workspace } = await params;
-    const { page } = await searchParams;
-    const currentPage = parseInt(page || '1', 10);
+    const resolvedSearchParams = await searchParams;
+    const currentPage = parseInt(resolvedSearchParams?.page || '1', 10);
 
     const [company] = await db
         .select()
@@ -37,15 +36,10 @@ export default async function FilesPage({ params, searchParams }: FilesPageProps
         redirect(routes.workspaces);
     }
 
-    const { files, total, totalPages } = await getFiles(company.id, currentPage, 10);
-
     return (
-        <FilesPageClient
+        <FilesPage
             companyId={company.id}
-            initialFiles={files}
-            initialTotal={total}
-            initialTotalPages={totalPages}
-            initialPage={currentPage}
+            page={currentPage}
         />
     );
 }

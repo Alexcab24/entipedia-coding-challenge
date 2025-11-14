@@ -1,29 +1,43 @@
 'use client';
 
-import Button from '../Button';
+import Button from './Button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-interface ClientsPaginationProps {
+interface PaginationProps {
     currentPage: number;
     totalPages: number;
     total: number;
+    itemLabel?: string;
+    onPageChange?: (page: number) => void;
+    scrollToTop?: boolean;
 }
 
-export default function ClientsPagination({
+export default function Pagination({
     currentPage,
     totalPages,
     total,
-}: ClientsPaginationProps) {
+    itemLabel = 'elementos',
+    onPageChange,
+    scrollToTop = false,
+}: PaginationProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= totalPages) {
-            const params = new URLSearchParams(searchParams);
-            params.set('page', newPage.toString());
-            router.push(`${pathname}?${params.toString()}`);
+            if (onPageChange) {
+                onPageChange(newPage);
+            } else {
+                const params = new URLSearchParams(searchParams);
+                params.set('page', newPage.toString());
+                router.push(`${pathname}?${params.toString()}`);
+            }
+
+            if (scrollToTop) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
     };
 
@@ -32,7 +46,7 @@ export default function ClientsPagination({
     return (
         <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-muted-foreground">
-                Página {currentPage} de {totalPages} ({total} clientes)
+                Página {currentPage} de {totalPages} ({total} {itemLabel})
             </div>
             <div className="flex gap-2">
                 <Button

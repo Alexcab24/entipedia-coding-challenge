@@ -1,9 +1,8 @@
 
 import ClientsView from './ClientsView';
-import ClientsSearchBar from './ClientsSearchBar';
+import SearchBar from '../SearchBar';
 import CreateClientButton from './CreateClientButton';
-import ClientsPagination from './ClientsPagination';
-
+import Pagination from '../Pagination';
 import { getClients } from '@/lib/actions/clients/get-clients';
 
 interface ClientsPageProps {
@@ -40,8 +39,9 @@ export default async function ClientsPage({
                 </div>
                 <div className="p-6 space-y-4">
                     <div className="w-full sm:w-auto">
-                        <ClientsSearchBar
+                        <SearchBar
                             placeholder="Buscar clientes"
+                            mode="url"
                         />
                     </div>
 
@@ -49,10 +49,11 @@ export default async function ClientsPage({
                         clients={clients}
                     />
 
-                    <ClientsPagination
+                    <Pagination
                         currentPage={page}
                         totalPages={totalPages}
                         total={total}
+                        itemLabel="clientes"
                     />
                 </div>
             </div>
