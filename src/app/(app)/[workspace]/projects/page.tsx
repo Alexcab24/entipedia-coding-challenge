@@ -3,17 +3,16 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { companiesTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { getProjects } from '@/lib/actions/projects/get-projects';
-import ProjectsPageClient from '@/components/ui/projects/ProjectsPageClient';
+import ProjectsPage from '@/components/ui/projects/ProjectsPage';
 import { routes } from '@/router/routes';
 
-interface ProjectsPageProps {
+interface PageProps {
     params: Promise<{
         workspace: string;
     }>;
 }
 
-export default async function ProjectsPage({ params }: ProjectsPageProps) {
+export default async function Page({ params }: PageProps) {
     const session = await auth();
 
     if (!session?.user?.id) {
@@ -32,12 +31,7 @@ export default async function ProjectsPage({ params }: ProjectsPageProps) {
         redirect(routes.workspaces);
     }
 
-    const projects = await getProjects(company.id);
-
     return (
-        <ProjectsPageClient
-            companyId={company.id}
-            initialProjects={projects}
-        />
+        <ProjectsPage companyId={company.id} />
     );
 }
