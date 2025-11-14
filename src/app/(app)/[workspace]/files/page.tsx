@@ -11,6 +11,7 @@ interface PageProps {
         workspace: string;
     }>;
     searchParams: Promise<{
+        query?: string;
         page?: string;
     }>;
 }
@@ -24,6 +25,7 @@ export default async function Page({ params, searchParams }: PageProps) {
 
     const { workspace } = await params;
     const resolvedSearchParams = await searchParams;
+    const query = resolvedSearchParams?.query || '';
     const currentPage = parseInt(resolvedSearchParams?.page || '1', 10);
 
     const [company] = await db
@@ -40,6 +42,7 @@ export default async function Page({ params, searchParams }: PageProps) {
         <FilesPage
             companyId={company.id}
             page={currentPage}
+            query={query}
         />
     );
 }

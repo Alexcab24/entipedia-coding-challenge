@@ -1,4 +1,5 @@
-import FilesSearchWrapper from './FilesSearchWrapper';
+import FilesView from './FilesView';
+import SearchBar from '../SearchBar';
 import CreateFileButton from './CreateFileButton';
 import Pagination from '../Pagination';
 import { getFiles } from '@/lib/actions/files/get-files';
@@ -7,13 +8,15 @@ import { FileText } from 'lucide-react';
 interface FilesPageProps {
     companyId: string;
     page: number;
+    query: string;
 }
 
 export default async function FilesPage({
     companyId,
     page,
+    query,
 }: FilesPageProps) {
-    const { files, total, totalPages } = await getFiles(companyId, page, 10);
+    const { files, total, totalPages } = await getFiles(companyId, page, 10, query);
 
     return (
         <div className="w-full space-y-6">
@@ -39,10 +42,14 @@ export default async function FilesPage({
                     </div>
                 </div>
                 <div className="p-6 space-y-4">
-                    <FilesSearchWrapper
-                        files={files}
-                        placeholder="Buscar archivos por nombre, descripción o tipo..."
-                    />
+                    <div className="w-full sm:w-auto">
+                        <SearchBar
+                            placeholder="Buscar archivos por nombre, descripción o tipo..."
+                            mode="url"
+                        />
+                    </div>
+
+                    <FilesView files={files} />
 
                     <Pagination
                         currentPage={page}

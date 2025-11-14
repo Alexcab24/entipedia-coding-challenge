@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import FilesTable from './FilesTable';
 import FilesCardView from './FilesCardView';
 import DeleteFileDialog from './DeleteFileDialog';
@@ -10,12 +10,10 @@ import { useRouter } from 'next/navigation';
 
 interface FilesViewProps {
     files: File[];
-    searchQuery: string;
 }
 
 export default function FilesView({
     files,
-    searchQuery,
 }: FilesViewProps) {
     const router = useRouter();
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -25,18 +23,6 @@ export default function FilesView({
     useEffect(() => {
         setLocalFiles(files);
     }, [files]);
-
-    const searchFilteredFiles = useMemo(() => {
-        return localFiles.filter((file) => {
-            if (!searchQuery) return true;
-            const query = searchQuery.toLowerCase();
-            return (
-                file.name.toLowerCase().includes(query) ||
-                (file.description?.toLowerCase().includes(query) ?? false) ||
-                file.type.toLowerCase().includes(query)
-            );
-        });
-    }, [localFiles, searchQuery]);
 
     const handleDeleteClick = (file: File) => {
         setFileToDelete(file);
@@ -49,14 +35,12 @@ export default function FilesView({
         toast.success('Archivo eliminado exitosamente');
     };
 
-    const displayFiles = searchQuery ? searchFilteredFiles : localFiles;
-
     return (
         <>
             {/* Desktop: Table View */}
             <div className="hidden lg:block">
                 <FilesTable
-                    files={displayFiles}
+                    files={localFiles}
                     onDelete={handleDeleteClick}
                 />
             </div>
@@ -64,12 +48,12 @@ export default function FilesView({
             {/* Mobile: Card View */}
             <div className="lg:hidden">
                 <FilesCardView
-                    files={displayFiles}
+                    files={localFiles}
                     onDelete={handleDeleteClick}
                 />
             </div>
 
-            {searchQuery && searchFilteredFiles.length === 0 && (
+            {localFiles.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                     No se encontraron archivos que coincidan con tu búsqueda.
                 </div>
