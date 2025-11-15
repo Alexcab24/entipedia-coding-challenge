@@ -1,9 +1,9 @@
 'use client';
 
-import { File } from './FilesPageClient';
+import { File } from '@/lib/actions/files/get-files';
 import { Card, CardContent } from '../card';
 import Button from '../Button';
-import { Trash2, Download, ExternalLink, FileText, Image, Video, Music, FileIcon, Calendar } from 'lucide-react';
+import { Trash2, Download, ExternalLink, FileText, Image, Video, Music, FileIcon, Calendar, Link2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -12,11 +12,20 @@ interface FileCardProps {
     onDelete: (file: File) => void;
 }
 
-const getFileTypeIcon = (type: File['type']) => {
-    switch (type) {
+const isUrlFile = (file: File) => {
+    return file.key.startsWith('url-');
+};
+
+const getFileTypeIcon = (file: File) => {
+    if (isUrlFile(file)) {
+        return <Link2 className="h-5 w-5 text-cyan-500" />;
+    }
+
+    switch (file.type) {
         case 'pdf':
             return <FileText className="h-5 w-5 text-red-500" />;
         case 'image':
+            // eslint-disable-next-line jsx-a11y/alt-text
             return <Image className="h-5 w-5 text-blue-500" />;
         case 'video':
             return <Video className="h-5 w-5 text-purple-500" />;
@@ -29,7 +38,11 @@ const getFileTypeIcon = (type: File['type']) => {
     }
 };
 
-const getFileTypeLabel = (type: File['type']) => {
+const getFileTypeLabel = (file: File) => {
+    if (isUrlFile(file)) {
+        return 'URL';
+    }
+
     const labels: Record<File['type'], string> = {
         pdf: 'PDF',
         image: 'Imagen',
@@ -38,11 +51,15 @@ const getFileTypeLabel = (type: File['type']) => {
         document: 'Documento',
         other: 'Otro',
     };
-    return labels[type];
+    return labels[file.type];
 };
 
-const getFileTypeBadgeColor = (type: File['type']) => {
-    switch (type) {
+const getFileTypeBadgeColor = (file: File) => {
+    if (isUrlFile(file)) {
+        return 'bg-cyan-100/80 text-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-300 border-cyan-200/50 dark:border-cyan-800/50';
+    }
+
+    switch (file.type) {
         case 'pdf':
             return 'bg-red-100/80 text-red-800 dark:bg-red-950/40 dark:text-red-300 border-red-200/50 dark:border-red-800/50';
         case 'image':
@@ -77,15 +94,15 @@ export default function FileCard({
                 <div className="flex items-start justify-between gap-4 pb-5 border-b-2 border-primary/20">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                         <div className="p-4 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300 shrink-0 shadow-sm">
-                            {getFileTypeIcon(file.type)}
+                            {getFileTypeIcon(file)}
                         </div>
                         <div className="flex-1 min-w-0">
                             <h3 className="text-xl font-bold text-foreground truncate mb-2">
                                 {file.name}
                             </h3>
-                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm border ${getFileTypeBadgeColor(file.type)}`}>
-                                {getFileTypeIcon(file.type)}
-                                {getFileTypeLabel(file.type)}
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm border ${getFileTypeBadgeColor(file)}`}>
+                                {getFileTypeIcon(file)}
+                                {getFileTypeLabel(file)}
                             </span>
                         </div>
                     </div>

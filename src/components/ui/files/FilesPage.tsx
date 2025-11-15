@@ -16,6 +16,7 @@ export default async function FilesPage({
     page,
     query,
 }: FilesPageProps) {
+    
     const { files, total, totalPages } = await getFiles(companyId, page, 10, query);
 
     return (

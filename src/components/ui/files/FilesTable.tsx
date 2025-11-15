@@ -7,9 +7,9 @@ import {
     TableHeader,
     TableRow,
 } from '../table';
-import { File } from './FilesPageClient';
+import { File } from '@/lib/actions/files/get-files';
 import Button from '../Button';
-import { Trash2, Download, ExternalLink, FileText, Image, Video, Music, FileIcon, MoreVertical } from 'lucide-react';
+import { Trash2, Download, ExternalLink, FileText, Image, Video, Music, FileIcon, MoreVertical, Link2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -18,11 +18,20 @@ interface FilesTableProps {
     onDelete: (file: File) => void;
 }
 
-const getFileTypeIcon = (type: File['type']) => {
-    switch (type) {
+const isUrlFile = (file: File) => {
+    return file.key.startsWith('url-');
+};
+
+const getFileTypeIcon = (file: File) => {
+    if (isUrlFile(file)) {
+        return <Link2 className="h-5 w-5 text-cyan-500" />;
+    }
+
+    switch (file.type) {
         case 'pdf':
             return <FileText className="h-5 w-5 text-red-500" />;
         case 'image':
+            // eslint-disable-next-line jsx-a11y/alt-text
             return <Image className="h-5 w-5 text-blue-500" />;
         case 'video':
             return <Video className="h-5 w-5 text-purple-500" />;
@@ -35,7 +44,11 @@ const getFileTypeIcon = (type: File['type']) => {
     }
 };
 
-const getFileTypeLabel = (type: File['type']) => {
+const getFileTypeLabel = (file: File) => {
+    if (isUrlFile(file)) {
+        return 'URL';
+    }
+
     const labels: Record<File['type'], string> = {
         pdf: 'PDF',
         image: 'Imagen',
@@ -44,11 +57,15 @@ const getFileTypeLabel = (type: File['type']) => {
         document: 'Documento',
         other: 'Otro',
     };
-    return labels[type];
+    return labels[file.type];
 };
 
-const getFileTypeBadgeColor = (type: File['type']) => {
-    switch (type) {
+const getFileTypeBadgeColor = (file: File) => {
+    if (isUrlFile(file)) {
+        return 'bg-cyan-100/80 text-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-300 border-cyan-200/50 dark:border-cyan-800/50';
+    }
+
+    switch (file.type) {
         case 'pdf':
             return 'bg-red-100/80 text-red-800 dark:bg-red-950/40 dark:text-red-300 border-red-200/50 dark:border-red-800/50';
         case 'image':
@@ -89,7 +106,7 @@ export default function FilesTable({
                         <col style={{ width: '20%' }} />
                         <col style={{ width: '10%' }} />
                     </colgroup>
-                    <TableHeader className="bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md z-10 border-b-2 border-primary/30">
+                    <TableHeader className="bg-linear-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md z-10 border-b-2 border-primary/30">
                         <TableRow className="border-0 hover:bg-transparent">
                             <TableHead className="h-16 px-6 font-bold text-primary-foreground text-sm">
                                 <div className="flex items-center justify-center">
@@ -166,12 +183,12 @@ export default function FilesTable({
                             files.map((file) => (
                                 <TableRow
                                     key={file.id}
-                                    className="border-0 border-b-2 border-l-4 border-l-transparent hover:border-l-primary hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 group"
+                                    className="border-0 border-b-2 border-l-4 border-l-transparent hover:border-l-primary hover:bg-linear-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 group"
                                 >
                                     <TableCell className="px-6 py-5">
                                         <div className="flex items-center justify-center">
                                             <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                                                {getFileTypeIcon(file.type)}
+                                                {getFileTypeIcon(file)}
                                             </div>
                                         </div>
                                     </TableCell>
@@ -185,9 +202,9 @@ export default function FilesTable({
                                         </div>
                                     </TableCell>
                                     <TableCell className="px-6 py-5 text-sm">
-                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm border ${getFileTypeBadgeColor(file.type)}`}>
-                                            {getFileTypeIcon(file.type)}
-                                            {getFileTypeLabel(file.type)}
+                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm border ${getFileTypeBadgeColor(file)}`}>
+                                            {getFileTypeIcon(file)}
+                                            {getFileTypeLabel(file)}
                                         </span>
                                     </TableCell>
                                     <TableCell className="px-6 py-5 text-sm min-w-[200px]">

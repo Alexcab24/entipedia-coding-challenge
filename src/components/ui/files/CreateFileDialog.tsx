@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 'use client';
 
 import { useState, useEffect, useRef, useTransition, useActionState } from 'react';
@@ -80,7 +81,7 @@ export default function CreateFileDialog({
     });
 
     const fileType = watch('type');
-  
+
 
     useEffect(() => {
         if (open) {
@@ -96,6 +97,26 @@ export default function CreateFileDialog({
             processedSuccessRef.current = false;
         }
     }, [open, reset]);
+
+    // Manejar cambios en el estado después de la acción
+    useEffect(() => {
+        if (state.status === 'error' && state.message && !processedSuccessRef.current) {
+            toast.error(state.message || 'Error al crear el archivo');
+            processedSuccessRef.current = true;
+        }
+
+        if (state.status === 'success' && !processedSuccessRef.current) {
+            processedSuccessRef.current = true;
+            toast.success('Archivo creado exitosamente');
+            onOpenChange(false);
+            reset();
+            setSelectedFile(null);
+            setUploadMethod('file');
+            setTimeout(() => {
+                onSuccessRef.current();
+            }, 150);
+        }
+    }, [state, onOpenChange, reset]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -142,28 +163,12 @@ export default function CreateFileDialog({
 
         startTransition(async () => {
             try {
-                // const result = await uploadFile(uploadFileInitialState, formData);
-
-
-
-
-
-                // TODO: Implement when backend is ready
-
                 formAction(formData);
-
-                processedSuccessRef.current = true;
-                toast.success('Archivo creado exitosamente');
-                onOpenChange(false);
-                reset();
-                setSelectedFile(null);
-                setUploadMethod('file');
-                setTimeout(() => {
-                    onSuccessRef.current();
-                }, 150);
+                // El estado se actualiza automáticamente a través de useActionState
+                // El useEffect manejará los cambios de estado
             } catch (error) {
-                console.error('Error creating file:', error);
-                toast.error('Error al crear el archivo');
+                console.error('[CreateFileDialog] Error creating file:', error);
+                toast.error(`Error al crear el archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`);
             }
         });
     };
