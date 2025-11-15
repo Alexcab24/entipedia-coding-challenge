@@ -5,6 +5,7 @@ import {
     projectsTable,
     filesTable,
     userCompaniesTable,
+    clientsTable,
 } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { auth } from '@/auth.config';
@@ -39,8 +40,8 @@ export async function getDashboardStats(
 
             db
                 .select({ count: sql<number>`count(*)::int` })
-                .from(userCompaniesTable)
-                .where(eq(userCompaniesTable.companyId, companyId)),
+                .from(clientsTable)
+                .where(eq(clientsTable.companyId, companyId)),
 
             db
                 .select({ count: sql<number>`count(*)::int` })

@@ -49,7 +49,7 @@ export default function Sidebar({ workspace }: SidebarProps) {
     const pathname = usePathname();
 
     return (
-        <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:pt-16 lg:border-r lg:border-border lg:bg-background">
+        <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:pt-16 lg:border-r lg:border-border lg:bg-background transition-all duration-500" >
             <div className="flex-1 flex flex-col pt-6 pb-4 overflow-y-auto">
                 <nav className="flex-1 px-3 space-y-1">
                     {navigation.map((item) => {
@@ -62,9 +62,9 @@ export default function Sidebar({ workspace }: SidebarProps) {
                                 key={item.name}
                                 href={href}
                                 className={cn(
-                                    'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                                    'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-500',
                                     isActive
-                                        ? 'bg-primary text-primary-foreground'
+                                        ? 'bg-primary text-primary-foreground transition-all duration-500'
                                         : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                                 )}
                             >

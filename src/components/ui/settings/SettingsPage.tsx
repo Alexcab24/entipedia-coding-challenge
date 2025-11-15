@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
     Settings,
     Building2,
@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ca
 import Input from '../Input';
 import Button from '../Button';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 interface Company {
     id: string;
@@ -36,33 +37,13 @@ type SettingsSection = 'general' | 'appearance' | 'invite';
 
 export default function SettingsPage({ company }: SettingsPageProps) {
     const [activeSection, setActiveSection] = useState<SettingsSection>('general');
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const { toggleTheme, isDark } = useTheme();
     const [formData, setFormData] = useState({
         name: company.name,
         description: company.description || '',
     });
     const [inviteEmail, setInviteEmail] = useState('');
     const [invitedEmails, setInvitedEmails] = useState<string[]>([]);
-
-
-    useEffect(() => {
-        const isDark = document.documentElement.classList.contains('dark');
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setIsDarkMode(isDark);
-    }, []);
-
-    const handleToggleTheme = () => {
-        const newDarkMode = !isDarkMode;
-        setIsDarkMode(newDarkMode);
-
-        if (newDarkMode) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    };
 
     const handleInputChange = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -106,7 +87,7 @@ export default function SettingsPage({ company }: SettingsPageProps) {
     ];
 
     const renderGeneralSection = () => (
-        <div className="space-y-6">
+        <div className="space-y-6 rounded-lg">
             <div>
                 <h3 className="text-lg font-semibold text-foreground mb-1">
                     Información del Workspace
@@ -175,7 +156,7 @@ export default function SettingsPage({ company }: SettingsPageProps) {
     );
 
     const renderAppearanceSection = () => (
-        <div className="space-y-6">
+        <div className="space-y-6 rounded-lg">
             <div>
                 <h3 className="text-lg font-semibold text-foreground mb-1">
                     Tema de la Aplicación
@@ -191,9 +172,9 @@ export default function SettingsPage({ company }: SettingsPageProps) {
                         <div className="flex items-center gap-4">
                             <div className={cn(
                                 "p-3 rounded-lg transition-colors",
-                                isDarkMode ? "bg-muted" : "bg-primary/10"
+                                isDark ? "bg-muted" : "bg-primary/10"
                             )}>
-                                {isDarkMode ? (
+                                {isDark ? (
                                     <Moon className="h-5 w-5 text-primary" />
                                 ) : (
                                     <Sun className="h-5 w-5 text-primary" />
@@ -201,27 +182,27 @@ export default function SettingsPage({ company }: SettingsPageProps) {
                             </div>
                             <div>
                                 <p className="font-medium text-foreground">
-                                    Modo {isDarkMode ? 'Oscuro' : 'Claro'}
+                                    Modo {isDark ? 'Oscuro' : 'Claro'}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                    {isDarkMode
+                                    {isDark
                                         ? 'Interfaz con colores oscuros para reducir la fatiga visual'
                                         : 'Interfaz con colores claros, ideal para uso diurno'}
                                 </p>
                             </div>
                         </div>
                         <button
-                            onClick={handleToggleTheme}
+                            onClick={toggleTheme}
                             className={cn(
                                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                                isDarkMode ? "bg-primary" : "bg-secondary"
+                                isDark ? "bg-primary" : "bg-secondary"
                             )}
                             aria-label="Toggle theme"
                         >
                             <span
                                 className={cn(
                                     "inline-block h-4 w-4 transform rounded-full bg-background transition-transform",
-                                    isDarkMode ? "translate-x-6" : "translate-x-1"
+                                    isDark ? "translate-x-6" : "translate-x-1"
                                 )}
                             />
                         </button>
@@ -230,7 +211,7 @@ export default function SettingsPage({ company }: SettingsPageProps) {
             </Card>
 
             <div className="rounded-lg border border-border/60 bg-muted/30 p-4 flex items-start gap-3">
-                <Info className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <Info className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="text-sm text-muted-foreground">
                     <p className="font-medium text-foreground mb-1">Sobre los temas</p>
                     <p>
@@ -336,7 +317,7 @@ export default function SettingsPage({ company }: SettingsPageProps) {
             </Card>
 
             <div className="rounded-lg border border-border/60 bg-muted/30 p-4 flex items-start gap-3">
-                <Info className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <Info className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="text-sm text-muted-foreground">
                     <p className="font-medium text-foreground mb-1">Sobre las invitaciones</p>
                     <p>
@@ -412,8 +393,8 @@ export default function SettingsPage({ company }: SettingsPageProps) {
                 </Card>
 
                 {/* Main Content */}
-                <Card className="border-border/60 shadow-md">
-                    <CardHeader className="bg-gradient-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border-b-2 border-primary/30">
+                <Card className="border-border/60 shadow-md rounded-lg">
+                    <CardHeader className="bg-linear-to-r from-primary/60 via-primary/50 to-primary/60 backdrop-blur-md border-b-2 border-primary/30 rounded-t-lg">
                         <div className="flex items-center gap-3">
                             {(() => {
                                 const SectionIcon = sections.find(s => s.id === activeSection)?.icon || Settings;

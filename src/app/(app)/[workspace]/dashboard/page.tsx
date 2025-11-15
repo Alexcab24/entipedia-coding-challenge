@@ -6,7 +6,8 @@ import { eq } from 'drizzle-orm';
 import { getDashboardStats } from '@/lib/actions/dashboard/get-dashboard-stats';
 import DashboardCard from '@/components/ui/dashboard/DashboardCard';
 import { FolderKanban, Users, FileText, LayoutDashboard } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { routes } from '@/router/routes';
+
 
 interface DashboardPageProps {
     params: Promise<{
@@ -31,7 +32,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         .limit(1);
 
     if (!company) {
-        redirect('/workspaces');
+        redirect(routes.workspaces);
     }
 
     const stats = await getDashboardStats(company.id);
@@ -61,15 +62,17 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                     title="Total de Proyectos"
                     value={stats.totalProjects}
                     icon={FolderKanban}
+                    href={`/${workspace}${routes.projects}`}
                     description="Proyectos en el workspace"
                     iconBgColor="bg-blue-500/10"
                     iconColor="text-blue-600 dark:text-blue-400"
                 />
                 <DashboardCard
-                    title="Número de Miembros"
+                    title="Total de Clientes"
                     value={stats.totalMembers}
                     icon={Users}
-                    description="Miembros del equipo"
+                    href={`/${workspace}${routes.clients}`}
+                    description="Clientes en el workspace"
                     iconBgColor="bg-green-500/10"
                     iconColor="text-green-600 dark:text-green-400"
                 />
@@ -77,6 +80,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                     title="Archivos Subidos"
                     value={stats.totalFiles}
                     icon={FileText}
+                    href={`/${workspace}${routes.files}`}
                     description="Archivos almacenados"
                     iconBgColor="bg-purple-500/10"
                     iconColor="text-purple-600 dark:text-purple-400"

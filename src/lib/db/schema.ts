@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { pgTable, uuid, varchar, text, timestamp, numeric, date } from "drizzle-orm/pg-core";
-import { clientTypes, fileTypes, projectStatuses, projectPriorities } from "./enums/enums";
+import { clientTypes, fileTypes, projectPriorities } from "./enums/enums";
 
 //Tables
 // (Main table)

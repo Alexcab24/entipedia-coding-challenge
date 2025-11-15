@@ -26,7 +26,7 @@ export default function Header({ workspaceName, userName }: HeaderProps) {
     };
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
             <div className="flex h-16 items-center justify-between px-4 lg:px-6">
                 <div className="flex items-center gap-3 lg:gap-4">
                     <Link
@@ -38,7 +38,7 @@ export default function Header({ workspaceName, userName }: HeaderProps) {
                             alt="Entipedia Logo"
                             width={120}
                             height={48}
-                            className="h-8 w-auto"
+                            className="h-8 w-auto transition-all duration-300"
                             priority
                         />
                     </Link>
@@ -53,7 +53,7 @@ export default function Header({ workspaceName, userName }: HeaderProps) {
 
                 <div className="flex items-center gap-2 lg:gap-3">
                     {userName && (
-                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-secondary transition-colors text-sm border border-border/50">
+                        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted hover:bg-secondary transition-colors text-sm border border-border/50">
                             <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
                                 <User className="h-3.5 w-3.5 text-primary" />
                             </div>

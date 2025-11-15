@@ -2,13 +2,16 @@
 
 import { Toaster as Sonner } from "sonner"
 import { CheckCircle2, XCircle, Info, AlertTriangle } from "lucide-react"
+import { useTheme } from "@/hooks/useTheme"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
+    const { theme } = useTheme()
+
     return (
         <Sonner
-            theme="light"
+            theme={theme}
             className="toaster group"
             position="top-center"
             richColors={false}
