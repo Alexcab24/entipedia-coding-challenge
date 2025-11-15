@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb', // Permitir archivos hasta 100MB
+    },
+  },
 };
 
 export default nextConfig;

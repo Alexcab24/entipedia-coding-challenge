@@ -26,8 +26,6 @@ export async function uploadFile(
         };
     }
 
-    console.log('[uploadFile] FormData:', formData);
-
     try {
         const name = formData.get('name');
         const type = formData.get('type');
@@ -36,12 +34,27 @@ export async function uploadFile(
         const url = formData.get('url');
         const description = formData.get('description');
 
+        console.log('[uploadFile] Iniciando procesamiento:', {
+            name,
+            type,
+            companyId,
+            hasFile: !!file,
+            fileSize: file instanceof File ? file.size : 0,
+            fileName: file instanceof File ? file.name : null,
+            hasUrl: !!url,
+        });
+
         let fileInstance: File | undefined;
         if (file instanceof File) {
             if (file.size === 0 && file.name === '') {
                 fileInstance = undefined;
             } else {
                 fileInstance = file;
+                console.log('[uploadFile] Archivo detectado:', {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                });
             }
         }
 
@@ -56,6 +69,7 @@ export async function uploadFile(
         });
 
         if (!parsedResult.success) {
+            console.error('[uploadFile] Error de validación:', parsedResult.error.flatten());
             const { fieldErrors } = parsedResult.error.flatten();
             return {
                 ...uploadFileInitialState,
@@ -85,35 +99,57 @@ export async function uploadFile(
         let fileUrl = validatedUrl || '';
 
         if (validatedFile) {
+            console.log('[uploadFile] Procesando archivo:', {
+                name: validatedFile.name,
+                size: validatedFile.size,
+                type: validatedFile.type,
+                fileType: validatedType,
+            });
 
-            const arrayBuffer = await validatedFile.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
             const fileExtension = validatedFile.name.split('.').pop() || '';
             const fileKey = `${validatedName}-${Date.now()}.${fileExtension}`;
 
-
-
             try {
+                const arrayBuffer = await validatedFile.arrayBuffer();
+                console.log('[uploadFile] ArrayBuffer obtenido, tamaño:', arrayBuffer.byteLength);
+
+                const buffer = Buffer.from(arrayBuffer);
+
+                console.log('[uploadFile] Subiendo a S3:', {
+                    bucket: process.env.AWS_BUCKET_NAME,
+                    key: fileKey,
+                    size: buffer.length,
+                });
+
                 await s3Client.send(new PutObjectCommand({
                     Bucket: process.env.AWS_BUCKET_NAME || '',
                     Key: fileKey,
                     Body: buffer,
                     ContentType: validatedFile.type,
                 }));
+
+                console.log('[uploadFile] Archivo subido exitosamente a S3');
+
             } catch (error) {
                 console.error('[uploadFile] Error al subir el archivo a S3:', error);
                 return {
                     ...uploadFileInitialState,
                     status: 'error',
-                    message: 'Error al subir el archivo a S3. Por favor, intenta nuevamente.',
+                    message: `Error al subir el archivo a S3: ${error instanceof Error ? error.message : 'Error desconocido'}. Por favor, intenta nuevamente.`,
                     fieldErrors: {},
                 };
             }
 
             fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/${fileKey}`;
 
-
             try {
+                console.log('[uploadFile] Insertando en base de datos:', {
+                    name: validatedName,
+                    type: validatedType,
+                    url: fileUrl,
+                    key: fileKey,
+                });
+
                 await db.insert(filesTable).values({
                     name: validatedName,
                     type: validatedType,
@@ -123,6 +159,7 @@ export async function uploadFile(
                     companyId: validatedCompanyId,
                 });
 
+                console.log('[uploadFile] Archivo insertado exitosamente en la base de datos');
                 revalidatePath(routes.files);
 
             } catch (error) {
@@ -130,13 +167,48 @@ export async function uploadFile(
                 return {
                     ...uploadFileInitialState,
                     status: 'error',
-                    message: 'Error al insertar el archivo en la base de datos. Por favor, intenta nuevamente.',
+                    message: `Error al insertar el archivo en la base de datos: ${error instanceof Error ? error.message : 'Error desconocido'}. Por favor, intenta nuevamente.`,
                     fieldErrors: {},
                 };
             }
 
         } else {
-            console.log('[uploadFile] No hay archivo para subir, usando URL proporcionada');
+
+
+
+            //subida de archivo por url
+            if (!validatedUrl) {
+                return {
+                    ...uploadFileInitialState,
+                    status: 'error',
+                    message: 'Debes proporcionar un archivo o una URL.',
+                    fieldErrors: {},
+                };
+            }
+
+            const urlKey = `url-${Date.now()}-${validatedName.replace(/\s+/g, '-').toLowerCase()}`;
+
+            try {
+                await db.insert(filesTable).values({
+                    name: validatedName,
+                    type: validatedType,
+                    url: validatedUrl,
+                    key: urlKey,
+                    description: validatedDescription || null,
+                    companyId: validatedCompanyId,
+                });
+
+                revalidatePath(routes.files);
+
+            } catch (error) {
+                console.error('[uploadFile] Error al insertar el archivo con URL en la base de datos:', error);
+                return {
+                    ...uploadFileInitialState,
+                    status: 'error',
+                    message: 'Error al insertar el archivo en la base de datos. Por favor, intenta nuevamente.',
+                    fieldErrors: {},
+                };
+            }
         }
 
 
