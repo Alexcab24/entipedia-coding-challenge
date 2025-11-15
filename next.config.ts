@@ -4,9 +4,17 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.amazonaws.com',
+      },
+    ],
+  },
   experimental: {
     serverActions: {
-      bodySizeLimit: '100mb', // Permitir archivos hasta 100MB
+      bodySizeLimit: '100mb', // se permiten archivos hasta 100MB
     },
   },
 };

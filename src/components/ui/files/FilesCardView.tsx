@@ -1,16 +1,18 @@
 'use client';
 
-import { File } from './FilesPageClient';
+import { File } from '@/lib/actions/files/get-files';
 import FileCard from './FileCard';
 
 interface FilesCardViewProps {
     files: File[];
     onDelete: (file: File) => void;
+    onView: (file: File) => void;
 }
 
 export default function FilesCardView({
     files,
     onDelete,
+    onView,
 }: FilesCardViewProps) {
     if (files.length === 0) {
         return (
@@ -30,6 +32,7 @@ export default function FilesCardView({
                     key={file.id}
                     file={file}
                     onDelete={onDelete}
+                    onView={onView}
                 />
             ))}
         </div>

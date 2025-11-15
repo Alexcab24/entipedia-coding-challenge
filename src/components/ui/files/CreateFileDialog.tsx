@@ -56,7 +56,7 @@ export default function CreateFileDialog({
     const processedSuccessRef = useRef(false);
     const onSuccessRef = useRef(onSuccess);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [state, formAction, isPendingAction] = useActionState(
+    const [state, formAction] = useActionState(
         uploadFile,
         uploadFileInitialState
     );
@@ -98,7 +98,6 @@ export default function CreateFileDialog({
         }
     }, [open, reset]);
 
-    // Manejar cambios en el estado después de la acción
     useEffect(() => {
         if (state.status === 'error' && state.message && !processedSuccessRef.current) {
             toast.error(state.message || 'Error al crear el archivo');
@@ -164,8 +163,6 @@ export default function CreateFileDialog({
         startTransition(async () => {
             try {
                 formAction(formData);
-                // El estado se actualiza automáticamente a través de useActionState
-                // El useEffect manejará los cambios de estado
             } catch (error) {
                 console.error('[CreateFileDialog] Error creating file:', error);
                 toast.error(`Error al crear el archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`);

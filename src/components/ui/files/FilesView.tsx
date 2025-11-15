@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import FilesTable from './FilesTable';
 import FilesCardView from './FilesCardView';
 import DeleteFileDialog from './DeleteFileDialog';
+import ViewFileDialog from './ViewFileDialog';
 import { File } from '@/lib/actions/files/get-files';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -18,7 +19,9 @@ export default function FilesView({
 }: FilesViewProps) {
     const router = useRouter();
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<File | null>(null);
+    const [fileToView, setFileToView] = useState<File | null>(null);
     const [localFiles, setLocalFiles] = useState<File[]>(files);
 
     useEffect(() => {
@@ -28,6 +31,17 @@ export default function FilesView({
     const handleDeleteClick = (file: File) => {
         setFileToDelete(file);
         setIsDeleteDialogOpen(true);
+    };
+
+    const handleViewClick = (file: File) => {
+        //solo se abre si es una url
+        if (file.key.startsWith('url-')) {
+            window.open(file.url, '_blank');
+            return;
+        }
+
+        setFileToView(file);
+        setIsViewDialogOpen(true);
     };
 
     const handleDeleteConfirm = async (fileId: string, key: string) => {
@@ -50,6 +64,7 @@ export default function FilesView({
                 <FilesTable
                     files={localFiles}
                     onDelete={handleDeleteClick}
+                    onView={handleViewClick}
                 />
             </div>
 
@@ -58,6 +73,7 @@ export default function FilesView({
                 <FilesCardView
                     files={localFiles}
                     onDelete={handleDeleteClick}
+                    onView={handleViewClick}
                 />
             </div>
 
@@ -75,8 +91,19 @@ export default function FilesView({
                         setFileToDelete(null);
                     }
                 }}
-                file={fileToDelete }
+                file={fileToDelete}
                 onConfirm={handleDeleteConfirm}
+            />
+
+            <ViewFileDialog
+                open={isViewDialogOpen}
+                onOpenChange={(open) => {
+                    setIsViewDialogOpen(open);
+                    if (!open) {
+                        setFileToView(null);
+                    }
+                }}
+                file={fileToView}
             />
         </>
     );

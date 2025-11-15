@@ -10,6 +10,7 @@ import { es } from 'date-fns/locale';
 interface FileCardProps {
     file: File;
     onDelete: (file: File) => void;
+    onView: (file: File) => void;
 }
 
 const isUrlFile = (file: File) => {
@@ -78,12 +79,9 @@ const getFileTypeBadgeColor = (file: File) => {
 export default function FileCard({
     file,
     onDelete,
+    onView,
 }: FileCardProps) {
     const handleDownload = () => {
-        window.open(file.url, '_blank');
-    };
-
-    const handleView = () => {
         window.open(file.url, '_blank');
     };
 
@@ -148,7 +146,7 @@ export default function FileCard({
                 <div className="flex gap-3 pt-4 border-t-2 border-primary/20">
                     <Button
                         variant="outline"
-                        onClick={handleView}
+                        onClick={() => onView(file)}
                         className="flex-1 rounded-xl border-2 hover:bg-primary/5 hover:border-primary/50 transition-all"
                     >
                         <ExternalLink className="h-4 w-4 mr-2" />

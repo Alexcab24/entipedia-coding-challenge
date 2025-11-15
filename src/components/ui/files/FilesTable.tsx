@@ -16,6 +16,7 @@ import { es } from 'date-fns/locale';
 interface FilesTableProps {
     files: File[];
     onDelete: (file: File) => void;
+    onView: (file: File) => void;
 }
 
 const isUrlFile = (file: File) => {
@@ -84,12 +85,9 @@ const getFileTypeBadgeColor = (file: File) => {
 export default function FilesTable({
     files,
     onDelete,
+    onView,
 }: FilesTableProps) {
     const handleDownload = (file: File) => {
-        window.open(file.url, '_blank');
-    };
-
-    const handleView = (file: File) => {
         window.open(file.url, '_blank');
     };
 
@@ -226,7 +224,7 @@ export default function FilesTable({
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={() => handleView(file)}
+                                                onClick={() => onView(file)}
                                                 className="hover:bg-primary/10 hover:text-primary transition-all duration-200 opacity-50 group-hover:opacity-100 hover:scale-110 rounded-lg"
                                                 title="Ver archivo"
                                             >
