@@ -7,6 +7,7 @@ import DeleteFileDialog from './DeleteFileDialog';
 import { File } from '@/lib/actions/files/get-files';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { deleteFile } from '@/lib/actions/files/delete-file';
 
 interface FilesViewProps {
     files: File[];
@@ -29,10 +30,17 @@ export default function FilesView({
         setIsDeleteDialogOpen(true);
     };
 
-    const handleDeleteConfirm = async (fileId: string) => {
-        // TODO: Implement delete when backend is ready
-        router.refresh();
-        toast.success('Archivo eliminado exitosamente');
+    const handleDeleteConfirm = async (fileId: string, key: string) => {
+        if (!fileId || !key) {
+            throw new Error('ID de archivo o key inválido');
+        }
+        const result = await deleteFile(fileId, key);
+        if (result.status === 'success') {
+            router.refresh();
+            toast.success('Archivo eliminado exitosamente');
+        } else {
+            throw new Error(result.message || 'Error al eliminar el archivo');
+        }
     };
 
     return (
@@ -67,7 +75,7 @@ export default function FilesView({
                         setFileToDelete(null);
                     }
                 }}
-                file={fileToDelete}
+                file={fileToDelete }
                 onConfirm={handleDeleteConfirm}
             />
         </>

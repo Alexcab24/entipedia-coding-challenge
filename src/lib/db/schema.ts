@@ -58,6 +58,7 @@ export const filesTable = pgTable("files", {
     description: text("description"),
     type: fileTypes("type").notNull(),
     url: varchar("url", { length: 255 }).notNull(),
+    key: varchar("key", { length: 255 }).notNull(),
     companyId: uuid("company_id").references(() => companiesTable.id).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

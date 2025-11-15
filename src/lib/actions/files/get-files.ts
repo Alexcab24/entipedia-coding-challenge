@@ -12,6 +12,7 @@ export interface File {
     name: string;
     description: string | null;
     type: FileType;
+    key: string;
     url: string;
     companyId: string;
     createdAt: Date;
@@ -68,6 +69,7 @@ export async function getFiles(
             name: file.name,
             description: file.description,
             type: file.type as 'pdf' | 'image' | 'video' | 'audio' | 'document' | 'other',
+            key: file.key,
             url: file.url,
             companyId: file.companyId,
             createdAt: file.createdAt,

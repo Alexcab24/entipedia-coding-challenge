@@ -11,14 +11,14 @@ import {
 } from '../dialog';
 import Button from '../Button';
 import { AlertTriangle, Loader2, FileText } from 'lucide-react';
-import { File } from './FilesPageClient';
 import { toast } from 'sonner';
+import { File } from '@/lib/actions/files/get-files';
 
 interface DeleteFileDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     file: File | null;
-    onConfirm: (fileId: string) => Promise<void>;
+    onConfirm: (fileId: string, key: string) => Promise<void>;
 }
 
 export default function DeleteFileDialog({
@@ -34,7 +34,7 @@ export default function DeleteFileDialog({
 
         startTransition(async () => {
             try {
-                await onConfirm(file.id);
+                await onConfirm(file.id, file.key);
                 toast.success('Archivo eliminado exitosamente');
                 onOpenChange(false);
             } catch (err) {

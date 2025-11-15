@@ -21,7 +21,6 @@ import {
 } from '../select';
 import { Loader2, Upload, Link2, FileText, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { FileType } from './FilesPageClient';
 import { uploadFile } from '@/lib/actions/files/upload-file';
 import { uploadFileInitialState } from '@/lib/actions/files/upload-file.types';
 
@@ -32,7 +31,7 @@ interface CreateFileDialogProps {
     companyId: string;
     onSuccess: () => void;
 }
-
+type FileType = 'pdf' | 'image' | 'video' | 'audio' | 'document' | 'other';
 interface CreateFileFormData {
     name: string;
     description: string;

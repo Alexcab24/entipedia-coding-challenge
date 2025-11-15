@@ -118,6 +118,7 @@ export async function uploadFile(
                     name: validatedName,
                     type: validatedType,
                     url: fileUrl,
+                    key: fileKey,
                     description: validatedDescription || null,
                     companyId: validatedCompanyId,
                 });
