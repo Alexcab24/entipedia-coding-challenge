@@ -160,13 +160,13 @@ export async function uploadFile(
                 const buffer = Buffer.from(arrayBuffer);
 
                 console.log('[uploadFile] Subiendo a S3:', {
-                    bucket: process.env.AWS_BUCKET_NAME,
+                    bucket: process.env.S3_BUCKET_NAME,
                     key: fileKey,
                     size: buffer.length,
                 });
 
                 await s3Client.send(new PutObjectCommand({
-                    Bucket: process.env.AWS_BUCKET_NAME || '',
+                    Bucket: process.env.S3_BUCKET_NAME || '',
                     Key: fileKey,
                     Body: buffer,
                     ContentType: validatedFile.type,
@@ -184,7 +184,7 @@ export async function uploadFile(
                 };
             }
 
-            fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_BUCKET_REGION}.amazonaws.com/${fileKey}`;
+            fileUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.S3_REGION}.amazonaws.com/${fileKey}`;
 
             try {
                 console.log('[uploadFile] Insertando en base de datos:', {

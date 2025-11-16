@@ -1,4 +1,4 @@
-import { APP_BASE_URL, createTransporter, GMAIL_USER, SMTP_FROM_NAME } from "./client";
+import { APP_BASE_URL, createTransporter, MAIL_USER, MAIL_FROM_NAME } from "./client";
 
 interface SendVerificationEmailParams {
   email: string;
@@ -109,7 +109,7 @@ export const sendVerificationEmail = async ({
 
   if (!transporter) {
     const errorMsg =
-      'Gmail SMTP no está configurado. Configura las variables de entorno GMAIL_USER y GMAIL_APP_PASSWORD.';
+      'Gmail SMTP no está configurado. Configura las variables de entorno MAIL_USER y MAIL_APP_PASSWORD.';
     console.error(errorMsg);
     throw new Error(errorMsg);
   }
@@ -118,7 +118,7 @@ export const sendVerificationEmail = async ({
 
   try {
     const info = await transporter.sendMail({
-      from: `"${SMTP_FROM_NAME}" <${GMAIL_USER}>`,
+      from: `"${MAIL_FROM_NAME}" <${MAIL_USER}>`,
       to: email,
       subject: 'Confirma tu correo en Entipedia',
       text: buildEmailText(name, verificationUrl),
@@ -133,7 +133,7 @@ export const sendVerificationEmail = async ({
     if (error instanceof Error) {
       if (error.message.includes('Invalid login')) {
         throw new Error(
-          'Gmail SMTP: Credenciales inválidas. Verifica GMAIL_USER y GMAIL_APP_PASSWORD. Asegúrate de usar una "App Password" de Gmail, no tu contraseña normal.'
+          'Gmail SMTP: Credenciales inválidas. Verifica MAIL_USER y MAIL_APP_PASSWORD. Asegúrate de usar una "App Password" de Gmail, no tu contraseña normal.'
         );
       }
       if (error.message.includes('EAUTH')) {

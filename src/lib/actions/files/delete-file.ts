@@ -35,7 +35,7 @@ export async function deleteFile(fileId: string, key: string): Promise<DeleteFil
     try {
         // Delete file from S3
         await s3Client.send(new DeleteObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME || '',
+            Bucket: process.env.S3_BUCKET_NAME || '',
             Key: key,
         }));
 
