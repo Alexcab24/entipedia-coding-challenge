@@ -47,7 +47,7 @@ export default async function WorkspaceLayout({ children, params }: WorkspaceLay
     }
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background transition-all duration-500">
             <WorkspaceHeader
                 workspaceName={company.name}
                 userName={session.user.name || undefined}

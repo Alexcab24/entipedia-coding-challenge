@@ -4,3 +4,9 @@ export interface SendWorkspaceInvitationEmailParams {
     inviterName: string;
     token: string;
 }
+
+export interface SendResetPasswordEmailParams {
+    email: string;
+    name: string;
+    token: string;
+}

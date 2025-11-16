@@ -1,10 +1,6 @@
+import { SendResetPasswordEmailParams } from "@/types/interfaces/mail";
 import { APP_BASE_URL, createTransporter, GMAIL_USER, SMTP_FROM_NAME } from "./client";
 
-interface SendResetPasswordEmailParams {
-    email: string;
-    name: string;
-    token: string;
-}
 
 const buildResetUrl = (token: string) => {
     const baseUrl = APP_BASE_URL.endsWith('/')

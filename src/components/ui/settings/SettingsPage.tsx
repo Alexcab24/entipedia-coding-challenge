@@ -38,7 +38,7 @@ export default function SettingsPage({ company }: SettingsPageProps) {
     ];
 
     return (
-        <div className="w-full space-y-8 pb-8">
+        <div className="w-full space-y-8 pb-8 transition-all duration-500">
             {/* Header Section */}
             <div className="space-y-2">
                 <div className="flex items-center gap-3">
@@ -57,10 +57,10 @@ export default function SettingsPage({ company }: SettingsPageProps) {
             </div>
 
             {/* Settings Content */}
-            <div className="grid gap-6 lg:grid-cols-[250px_1fr]">
+            <div className="grid gap-6 lg:grid-cols-[250px_1fr] transition-all duration-500">
                 {/* Sidebar Navigation */}
-                <Card className="border-border/60 shadow-md lg:h-fit">
-                    <CardContent className="p-4">
+                <Card className="border-border/60 shadow-md lg:h-fit transition-all duration-500">
+                    <CardContent className="p-4 transition-all duration-500 ">
                         <nav className="space-y-1">
                             {sections.map((section) => {
                                 const Icon = section.icon;
@@ -122,7 +122,7 @@ export default function SettingsPage({ company }: SettingsPageProps) {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 transition-all duration-500">
                         {activeSection === 'general' && <GeneralSection company={company} />}
                         {activeSection === 'appearance' && <AppearanceSection />}
                         {activeSection === 'invite' && <InviteSection companyId={company.id} />}
