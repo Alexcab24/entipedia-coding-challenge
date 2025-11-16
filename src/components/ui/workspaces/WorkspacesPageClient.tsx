@@ -39,6 +39,7 @@ export default function WorkspacesPageClient({ workspaces }: WorkspacesPageClien
     };
 
     const ownWorkspaces = workspaces.filter((w) => w.role === 'owner');
+    const otherWorkspaces = workspaces.filter((w) => w.role !== 'owner');
 
     return (
         <div className="min-h-screen bg-background">
@@ -67,20 +68,36 @@ export default function WorkspacesPageClient({ workspaces }: WorkspacesPageClien
                         </Button>
                     </div>
 
-                    {/* Content */}
+                   
                     <div className="max-w-6xl mx-auto">
                         <WorkspacesHeader onOpenCreateModal={() => setShowCreateModal(true)} />
 
-                        {/* Own Workspaces */}
-                        <WorkspacesList
-                            workspaces={ownWorkspaces}
-                            onSelectWorkspace={handleSelectWorkspace}
-                            title="Mis empresas"
-                            showRole={true}
-                            roleLabel="Propietario"
-                        />
+                       
+                        {ownWorkspaces.length > 0 && (
+                            <WorkspacesList
+                                workspaces={ownWorkspaces}
+                                onSelectWorkspace={handleSelectWorkspace}
+                                title="Mis empresas"
+                                showRole={true}
+                                roleLabel="Propietario"
+                            />
+                        )}
 
-                        {/* Empty State */}
+                   
+                        {otherWorkspaces.length > 0 && (
+                            <WorkspacesList
+                                workspaces={otherWorkspaces}
+                                onSelectWorkspace={handleSelectWorkspace}
+                                title="Empresas compartidas"
+                                showRole={true}
+                                roleLabel={(workspace: Workspace) => {
+                                    if (workspace.role === 'admin') return 'Administrador';
+                                    return 'Miembro';
+                                }}
+                            />
+                        )}
+
+                     
                         {workspaces.length === 0 && (
                             <div className="text-center py-8 sm:py-12">
                                 <Building2 className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
@@ -104,7 +121,7 @@ export default function WorkspacesPageClient({ workspaces }: WorkspacesPageClien
                 </div>
             </div>
 
-            {/* Create Company Modal */}
+          
             <CreateWorkspaceModal
                 showCreateModal={showCreateModal}
                 setShowCreateModal={setShowCreateModal}

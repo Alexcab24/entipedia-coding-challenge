@@ -9,7 +9,7 @@ interface WorkspacesListProps {
     title: string;
     emptyMessage?: string;
     showRole?: boolean;
-    roleLabel?: string;
+    roleLabel?: string | ((workspace: Workspace) => string);
 }
 
 export default function WorkspacesList({
@@ -53,7 +53,7 @@ export default function WorkspacesList({
                         )}
                         {showRole && roleLabel && (
                             <span className="absolute top-3 sm:top-4 right-3 sm:right-4 text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">
-                                {roleLabel}
+                                {typeof roleLabel === 'function' ? roleLabel(workspace) : roleLabel}
                             </span>
                         )}
                     </button>

@@ -118,7 +118,11 @@ export const registerUser = async (
             );
         }
 
-        redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+        const invitationToken = formData.get('invitationToken');
+        const verifyEmailUrl = invitationToken
+            ? `/verify-email?email=${encodeURIComponent(email)}&invitation=${encodeURIComponent(invitationToken.toString())}`
+            : `/verify-email?email=${encodeURIComponent(email)}`;
+        redirect(verifyEmailUrl);
     } catch (error) {
 
         if (error && typeof error === 'object' && 'digest' in error &&

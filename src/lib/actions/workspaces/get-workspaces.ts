@@ -29,6 +29,7 @@ export async function getUserWorkspaces(): Promise<Workspace[]> {
                 name: companiesTable.name,
                 workspace: companiesTable.workspace,
                 description: companiesTable.description,
+                role: userCompaniesTable.role,
                 createdAt: companiesTable.createdAt,
                 updatedAt: companiesTable.updatedAt,
             })
@@ -39,14 +40,12 @@ export async function getUserWorkspaces(): Promise<Workspace[]> {
             )
             .where(eq(userCompaniesTable.userId, session.user.id));
 
-
-
         const result = workspaces.map((ws) => ({
             id: ws.id,
             name: ws.name,
             workspace: ws.workspace,
             description: ws.description,
-            role: 'owner' as const,
+            role: (ws.role || 'member') as 'owner' | 'admin' | 'member',
             createdAt: ws.createdAt,
             updatedAt: ws.updatedAt,
         }));

@@ -86,12 +86,12 @@ export default function FileCard({
     };
 
     return (
-        <Card className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-transparent hover:border-l-primary overflow-hidden group bg-gradient-to-br from-card via-card/95 to-card/90 active:scale-[0.99]">
+        <Card className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-transparent hover:border-l-primary overflow-hidden group bg-linear-to-br from-card via-card/95 to-card/90 active:scale-[0.99]">
             <CardContent className="p-6 md:p-7 space-y-6">
                 {/* Header con nombre y acciones */}
                 <div className="flex items-start justify-between gap-4 pb-5 border-b-2 border-primary/20">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
-                        <div className="p-4 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300 shrink-0 shadow-sm">
+                        <div className="p-4 rounded-xl bg-linear-to-br from-primary/20 to-primary/10 group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300 shrink-0 shadow-sm">
                             {getFileTypeIcon(file)}
                         </div>
                         <div className="flex-1 min-w-0">

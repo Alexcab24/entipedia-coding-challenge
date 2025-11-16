@@ -8,22 +8,25 @@ import { Mail, Lock, Loader2, MailCheck } from 'lucide-react';
 import { authenticate } from '@/lib/actions/auth/login';
 import { resendVerificationEmail } from '@/lib/actions/auth/resendVerification';
 import { routes } from '@/router/routes';
+import { LoginFormProps } from '@/types/interfaces/auth/login';
 
 
-interface LoginFormProps {
-  onSwitchToRegister?: () => void;
-}
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
+
+const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, invitationToken }) => {
   const router = useRouter();
 
   const [state, formAction, isPending] = useActionState(authenticate, undefined);
 
   useEffect(() => {
     if (state === 'Success') {
-      router.push(routes.workspaces);
+      if (invitationToken) {
+        router.push(`/accept-invitation?token=${encodeURIComponent(invitationToken)}`);
+      } else {
+        router.push(routes.workspaces);
+      }
     }
-  }, [state, router]);
+  }, [state, router, invitationToken]);
 
   const [formData, setFormData] = useState({
     email: '',

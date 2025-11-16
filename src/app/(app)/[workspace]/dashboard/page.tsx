@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { auth } from '@/auth.config';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
@@ -5,6 +6,7 @@ import { companiesTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getDashboardStats } from '@/lib/actions/dashboard/get-dashboard-stats';
 import DashboardCard from '@/components/ui/dashboard/DashboardCard';
+import PageLoading from '@/components/ui/PageLoading';
 import { FolderKanban, Users, FileText, LayoutDashboard } from 'lucide-react';
 import { routes } from '@/router/routes';
 
@@ -35,7 +37,23 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         redirect(routes.workspaces);
     }
 
-    const stats = await getDashboardStats(company.id);
+    return (
+        <Suspense fallback={<PageLoading text="Cargando dashboard..." />}>
+            <DashboardContent companyId={company.id} workspace={workspace} companyName={company.name} />
+        </Suspense>
+    );
+}
+
+async function DashboardContent({
+    companyId,
+    workspace,
+    companyName
+}: {
+    companyId: string;
+    workspace: string;
+    companyName: string;
+}) {
+    const stats = await getDashboardStats(companyId);
 
     return (
         <div className="w-full space-y-8 pb-8">
@@ -50,7 +68,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                             Dashboard
                         </h1>
                         <p className="text-muted-foreground mt-1">
-                            Vista general de {company.name}
+                            Vista general de {companyName}
                         </p>
                     </div>
                 </div>

@@ -70,7 +70,7 @@ export default function Sidebar({ workspace }: SidebarProps) {
                             >
                                 <Icon
                                     className={cn(
-                                        'mr-3 h-5 w-5 flex-shrink-0',
+                                        'mr-3 h-5 w-5 shrink-0',
                                         isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'
                                     )}
                                 />
@@ -85,7 +85,7 @@ export default function Sidebar({ workspace }: SidebarProps) {
                         href="/workspaces"
                         className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
                     >
-                        <Building2 className="mr-3 h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-foreground" />
+                        <Building2 className="mr-3 h-5 w-5 shrink-0 text-muted-foreground group-hover:text-foreground" />
                         Cambiar workspace
                     </Link>
                 </div>

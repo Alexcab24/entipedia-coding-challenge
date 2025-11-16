@@ -1,6 +1,7 @@
 'use client';
 
-import { Search, X } from 'lucide-react';
+import { useState, useEffect, useTransition } from 'react';
+import { Search, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
@@ -23,20 +24,32 @@ export default function SearchBar({
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+    const [localValue, setLocalValue] = useState('');
 
     const urlQuery = searchParams.get('query')?.toString() || '';
-    const displayValue = mode === 'url' ? urlQuery : (controlledValue || '');
+    const displayValue = mode === 'url' ? (localValue || urlQuery) : (controlledValue || '');
+
+
+    useEffect(() => {
+        if (mode === 'url' && !isPending) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setLocalValue(urlQuery);
+        }
+    }, [urlQuery, mode, isPending]);
 
     const handleSearch = useDebouncedCallback((term: string) => {
         if (mode === 'url') {
-            const params = new URLSearchParams(searchParams);
-            if (term) {
-                params.set('query', term);
-            } else {
-                params.delete('query');
-            }
-            params.delete('page');
-            router.replace(`${pathname}?${params.toString()}`);
+            startTransition(() => {
+                const params = new URLSearchParams(searchParams);
+                if (term) {
+                    params.set('query', term);
+                } else {
+                    params.delete('query');
+                }
+                params.delete('page');
+                router.replace(`${pathname}?${params.toString()}`);
+            });
         } else if (controlledOnChange) {
             controlledOnChange(term);
         }
@@ -44,10 +57,13 @@ export default function SearchBar({
 
     const handleClear = () => {
         if (mode === 'url') {
-            const params = new URLSearchParams(searchParams);
-            params.delete('query');
-            params.delete('page');
-            router.replace(`${pathname}?${params.toString()}`);
+            setLocalValue('');
+            startTransition(() => {
+                const params = new URLSearchParams(searchParams);
+                params.delete('query');
+                params.delete('page');
+                router.replace(`${pathname}?${params.toString()}`);
+            });
         } else if (controlledOnChange) {
             controlledOnChange('');
         }
@@ -56,6 +72,7 @@ export default function SearchBar({
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.target.value;
         if (mode === 'url') {
+            setLocalValue(newValue);
             handleSearch(newValue);
         } else if (controlledOnChange) {
             controlledOnChange(newValue);
@@ -66,7 +83,11 @@ export default function SearchBar({
         <div className={cn('relative w-full', className)}>
             <div className="relative group">
                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground z-10 group-focus-within:text-primary transition-colors duration-200">
-                    <Search className="h-5 w-5" />
+                    {isPending ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                        <Search className="h-5 w-5" />
+                    )}
                 </div>
 
                 <input

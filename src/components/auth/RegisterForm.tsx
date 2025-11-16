@@ -7,10 +7,8 @@ import Button from '@/components/ui/Button';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
 import { registerUser } from '@/lib/actions/auth/register';
 import { registerInitialState } from '@/lib/actions/auth/register.types';
+import { RegisterFormProps } from '@/types/interfaces/auth/register';
 
-interface RegisterFormProps {
-  onSwitchToLogin?: () => void;
-}
 
 const SubmitButton = () => {
   const { pending } = useFormStatus();
@@ -28,8 +26,16 @@ const SubmitButton = () => {
   );
 };
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, invitationToken }) => {
   const [state, formAction] = useActionState(registerUser, registerInitialState);
+
+
+  const handleFormAction = async (formData: FormData) => {
+    if (invitationToken) {
+      formData.append('invitationToken', invitationToken);
+    }
+    return formAction(formData);
+  };
 
   return (
     <div className="w-full">
@@ -42,7 +48,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
         </p>
       </div>
 
-      <form action={formAction} className="space-y-4 sm:space-y-6" noValidate>
+      <form action={handleFormAction} className="space-y-4 sm:space-y-6" noValidate>
         {state.status === 'error' && state.message && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 sm:p-4 text-xs sm:text-sm text-destructive">
             <div className="flex items-start gap-2">

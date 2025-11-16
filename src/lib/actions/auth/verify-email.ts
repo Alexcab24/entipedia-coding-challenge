@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { usersTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
-export async function verifyEmail(token: string) {
+export async function verifyEmail(token: string, invitationToken?: string) {
     if (!token) {
         redirect('/verify-email?status=invalid');
     }
@@ -34,7 +34,10 @@ export async function verifyEmail(token: string) {
             })
             .where(eq(usersTable.id, user.id));
 
-        redirect(`/verify-email/success?email=${encodeURIComponent(user.email)}`);
+        const successUrl = invitationToken
+            ? `/verify-email/success?email=${encodeURIComponent(user.email)}&invitation=${encodeURIComponent(invitationToken)}`
+            : `/verify-email/success?email=${encodeURIComponent(user.email)}`;
+        redirect(successUrl);
     } catch (error) {
         if (error && typeof error === 'object' && 'digest' in error &&
             typeof error.digest === 'string' && error.digest.startsWith('NEXT_REDIRECT')) {

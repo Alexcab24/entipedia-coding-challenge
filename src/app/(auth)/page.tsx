@@ -9,9 +9,17 @@ import RegisterForm from '@/components/auth/RegisterForm';
 type ViewMode = 'login' | 'register';
 
 export default function Home() {
-  const [viewMode, setViewMode] = useState<ViewMode>('login');
   const searchParams = useSearchParams();
   const resetSuccess = searchParams.get('reset') === 'success';
+  const loginParam = searchParams.get('login');
+  const registerParam = searchParams.get('register');
+  const invitationToken = searchParams.get('invitation');
+
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (registerParam === 'true') return 'register';
+    if (loginParam === 'true') return 'login';
+    return 'login';
+  });
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
@@ -59,10 +67,12 @@ export default function Home() {
               {viewMode === 'login' ? (
                 <LoginForm
                   onSwitchToRegister={() => setViewMode('register')}
+                  invitationToken={invitationToken || undefined}
                 />
               ) : (
                 <RegisterForm
                   onSwitchToLogin={() => setViewMode('login')}
+                  invitationToken={invitationToken || undefined}
                 />
               )}
             </div>

@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 import { pgTable, uuid, varchar, text, timestamp, numeric, date } from "drizzle-orm/pg-core";
-import { clientTypes, fileTypes, projectPriorities } from "./enums/enums";
+import { clientTypes, fileTypes, projectPriorities, invitationStatuses, workspaceRoles } from "./enums/enums";
 
 //Tables
 // (Main table)
@@ -32,8 +32,21 @@ export const userCompaniesTable = pgTable("user_companies", {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => usersTable.id).notNull(),
     companyId: uuid("company_id").references(() => companiesTable.id).notNull(),
+    role: workspaceRoles("role").default("member").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const workspaceInvitationsTable = pgTable("workspace_invitations", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: varchar("email", { length: 255 }).notNull(),
+    companyId: uuid("company_id").references(() => companiesTable.id).notNull(),
+    invitedBy: uuid("invited_by").references(() => usersTable.id).notNull(),
+    token: varchar("token", { length: 255 }).notNull().unique(),
+    status: invitationStatuses("status").default("pending").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    acceptedAt: timestamp("accepted_at"),
 });
 
 
@@ -86,6 +99,7 @@ export const companiesRelations = relations(companiesTable, ({ many }) => ({
     clients: many(clientsTable),
     files: many(filesTable),
     projects: many(projectsTable),
+    invitations: many(workspaceInvitationsTable),
 }));
 
 
@@ -101,6 +115,17 @@ export const userCompaniesRelations = relations(userCompaniesTable, ({ one }) =>
     company: one(companiesTable, {
         fields: [userCompaniesTable.companyId],
         references: [companiesTable.id],
+    }),
+}));
+
+export const workspaceInvitationsRelations = relations(workspaceInvitationsTable, ({ one }) => ({
+    company: one(companiesTable, {
+        fields: [workspaceInvitationsTable.companyId],
+        references: [companiesTable.id],
+    }),
+    inviter: one(usersTable, {
+        fields: [workspaceInvitationsTable.invitedBy],
+        references: [usersTable.id],
     }),
 }));
 

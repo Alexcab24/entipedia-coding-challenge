@@ -1,13 +1,7 @@
 import Link from 'next/link';
 import { verifyEmail } from '@/lib/actions/auth/verify-email';
+import { VerifyEmailPageProps } from '@/types/interfaces/auth/register';
 
-interface VerifyEmailPageProps {
-  searchParams: Promise<{
-    email?: string;
-    status?: 'expired' | 'invalid' | 'error';
-    token?: string;
-  }>;
-}
 
 const statusMessages: Record<string, { title: string; description: string }> = {
   expired: {
@@ -29,13 +23,13 @@ const statusMessages: Record<string, { title: string; description: string }> = {
 
 export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
   const params = await searchParams;
-  const { email, status, token } = params;
+  const { email, status, token, invitation } = params;
   const hasStatus = status && statusMessages[status];
 
 
   if (token && !hasStatus) {
-    await verifyEmail(token);
-    return null; 
+    await verifyEmail(token, invitation);
+    return null;
   }
 
   return (

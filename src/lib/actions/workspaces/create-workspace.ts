@@ -21,12 +21,13 @@ export async function createWorkspace(
         };
     }
 
+    const descriptionValue = formData.get('description');
     const parsedResult = createWorkspaceSchema.safeParse({
         name: formData.get('name'),
         workspace: formData.get('workspace'),
         email: formData.get('email'),
         phone: formData.get('phone'),
-        description: formData.get('description'),
+        description: descriptionValue === null || descriptionValue === '' ? undefined : descriptionValue,
     });
 
     if (!parsedResult.success) {
@@ -44,7 +45,7 @@ export async function createWorkspace(
         };
     }
 
-    const { name, workspace, email, phone, description } = parsedResult.data;
+    const { name, workspace, description } = parsedResult.data;
 
 
     const existingWorkspace = await db
@@ -77,6 +78,7 @@ export async function createWorkspace(
         await db.insert(userCompaniesTable).values({
             userId: session.user.id,
             companyId: company.id,
+            role: 'owner',
         });
 
         redirect(`/workspaces?created=${company.id}`);

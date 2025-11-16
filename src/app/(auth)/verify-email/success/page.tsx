@@ -1,13 +1,20 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-interface VerifyEmailSuccessPageProps {
-  searchParams: {
-    email?: string;
-  };
-}
+export default function VerifyEmailSuccessPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get('email');
+  const invitationToken = searchParams.get('invitation');
 
-export default function VerifyEmailSuccessPage({ searchParams }: VerifyEmailSuccessPageProps) {
-  const email = searchParams.email;
+  useEffect(() => {
+    if (invitationToken) {
+      router.push(`/accept-invitation?token=${encodeURIComponent(invitationToken)}`);
+    }
+  }, [invitationToken, router]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">

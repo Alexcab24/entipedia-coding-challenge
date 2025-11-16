@@ -1,9 +1,11 @@
+import { Suspense } from 'react';
 import { auth } from '@/auth.config';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { companiesTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import ProjectsPage from '@/components/ui/projects/ProjectsPage';
+import PageLoading from '@/components/ui/PageLoading';
 import { routes } from '@/router/routes';
 
 interface PageProps {
@@ -32,6 +34,8 @@ export default async function Page({ params }: PageProps) {
     }
 
     return (
-        <ProjectsPage companyId={company.id} />
+        <Suspense fallback={<PageLoading text="Cargando proyectos..." />}>
+            <ProjectsPage companyId={company.id} />
+        </Suspense>
     );
 }
