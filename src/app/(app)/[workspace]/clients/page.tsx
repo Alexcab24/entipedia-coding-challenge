@@ -1,0 +1,52 @@
+import { Suspense } from 'react';
+import { auth } from '@/auth.config';
+import { redirect } from 'next/navigation';
+import { db } from '@/lib/db';
+import { companiesTable } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import ClientsPage from '@/components/ui/clients/ClientsPage';
+import PageLoading from '@/components/ui/PageLoading';
+import { routes } from '@/router/routes';
+
+interface PageProps {
+    params: Promise<{
+        workspace: string;
+    }>;
+    searchParams: Promise<{
+        query?: string;
+        page?: string;
+    }>;
+}
+
+export default async function Page({ params, searchParams }: PageProps) {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        redirect(routes.home);
+    }
+
+    const { workspace } = await params;
+    const resolvedSearchParams = await searchParams;
+    const query = resolvedSearchParams?.query || '';
+    const currentPage = parseInt(resolvedSearchParams?.page || '1', 10);
+
+    const [company] = await db
+        .select()
+        .from(companiesTable)
+        .where(eq(companiesTable.workspace, workspace))
+        .limit(1);
+
+    if (!company) {
+        redirect(routes.workspaces);
+    }
+
+    return (
+        <Suspense fallback={<PageLoading text="Cargando clientes..." />}>
+            <ClientsPage
+                companyId={company.id}
+                page={currentPage}
+                query={query}
+            />
+        </Suspense>
+    );
+}
