@@ -82,10 +82,12 @@ export const registerUser = async (
         }).returning();
 
         try {
+            const invitationToken = formData.get('invitationToken')?.toString();
             await sendVerificationEmail({
                 email,
                 name: fullName,
                 token: verificationToken,
+                invitationToken: invitationToken || undefined,
             });
         } catch (emailError) {
             console.error("Failed to send verification email:", emailError);

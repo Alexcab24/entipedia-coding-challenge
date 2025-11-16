@@ -5,40 +5,45 @@ const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
 const SMTP_FROM_NAME = process.env.SMTP_FROM_NAME || 'Entipedia';
 
 const fallbackBaseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000';
+  ? `https://${process.env.VERCEL_URL}`
+  : 'http://localhost:3000';
 
 const APP_BASE_URL =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.APP_URL ??
-    fallbackBaseUrl;
+  process.env.NEXT_PUBLIC_APP_URL ??
+  process.env.APP_URL ??
+  fallbackBaseUrl;
 
 const createTransporter = () => {
-    if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
-        return null;
-    }
+  if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
+    return null;
+  }
 
-    return nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: GMAIL_USER,
-            pass: GMAIL_APP_PASSWORD,
-        },
-    });
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: GMAIL_USER,
+      pass: GMAIL_APP_PASSWORD,
+    },
+  });
 };
 
 interface SendVerificationEmailParams {
-    email: string;
-    name: string;
-    token: string;
+  email: string;
+  name: string;
+  token: string;
+  invitationToken?: string;
 }
 
-const buildVerificationUrl = (token: string) => {
-    const baseUrl = APP_BASE_URL.endsWith('/')
-        ? APP_BASE_URL.slice(0, -1)
-        : APP_BASE_URL;
+const buildVerificationUrl = (token: string, invitationToken?: string) => {
+  const baseUrl = APP_BASE_URL.endsWith('/')
+    ? APP_BASE_URL.slice(0, -1)
+    : APP_BASE_URL;
 
-    return `${baseUrl}/verify-email?token=${encodeURIComponent(token)}`;
+  const url = `${baseUrl}/verify-email?token=${encodeURIComponent(token)}`;
+  if (invitationToken) {
+    return `${url}&invitation=${encodeURIComponent(invitationToken)}`;
+  }
+  return url;
 };
 
 const buildEmailHtml = (name: string, verificationUrl: string) => `
@@ -122,51 +127,52 @@ Este enlace expirará en 24 horas. Si no creaste una cuenta, ignora este mensaje
 `;
 
 export const sendVerificationEmail = async ({
-    email,
-    name,
-    token,
+  email,
+  name,
+  token,
+  invitationToken,
 }: SendVerificationEmailParams) => {
-    const transporter = createTransporter();
+  const transporter = createTransporter();
 
-    if (!transporter) {
-        const errorMsg =
-            'Gmail SMTP no está configurado. Configura las variables de entorno GMAIL_USER y GMAIL_APP_PASSWORD.';
-        console.error(errorMsg);
-        throw new Error(errorMsg);
+  if (!transporter) {
+    const errorMsg =
+      'Gmail SMTP no está configurado. Configura las variables de entorno GMAIL_USER y GMAIL_APP_PASSWORD.';
+    console.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  const verificationUrl = buildVerificationUrl(token, invitationToken);
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"${SMTP_FROM_NAME}" <${GMAIL_USER}>`,
+      to: email,
+      subject: 'Confirma tu correo en Entipedia',
+      text: buildEmailText(name, verificationUrl),
+      html: buildEmailHtml(name, verificationUrl),
+    });
+
+    console.log('Email sent successfully:', info.messageId);
+    return { MessageId: info.messageId };
+  } catch (error) {
+    console.error('Gmail SMTP send error:', error);
+
+    if (error instanceof Error) {
+      if (error.message.includes('Invalid login')) {
+        throw new Error(
+          'Gmail SMTP: Credenciales inválidas. Verifica GMAIL_USER y GMAIL_APP_PASSWORD. Asegúrate de usar una "App Password" de Gmail, no tu contraseña normal.'
+        );
+      }
+      if (error.message.includes('EAUTH')) {
+        throw new Error(
+          'Gmail SMTP: Error de autenticación. Verifica que hayas habilitado "Acceso de aplicaciones menos seguras" o uses una "App Password" de Gmail.'
+        );
+      }
+      if (error.message.includes('ECONNECTION') || error.message.includes('ETIMEDOUT')) {
+        throw new Error('Gmail SMTP: Error de conexión. Verifica tu conexión a internet.');
+      }
     }
 
-    const verificationUrl = buildVerificationUrl(token);
-
-    try {
-        const info = await transporter.sendMail({
-            from: `"${SMTP_FROM_NAME}" <${GMAIL_USER}>`,
-            to: email,
-            subject: 'Confirma tu correo en Entipedia',
-            text: buildEmailText(name, verificationUrl),
-            html: buildEmailHtml(name, verificationUrl),
-        });
-
-        console.log('Email sent successfully:', info.messageId);
-        return { MessageId: info.messageId };
-    } catch (error) {
-        console.error('Gmail SMTP send error:', error);
-
-        if (error instanceof Error) {
-            if (error.message.includes('Invalid login')) {
-                throw new Error(
-                    'Gmail SMTP: Credenciales inválidas. Verifica GMAIL_USER y GMAIL_APP_PASSWORD. Asegúrate de usar una "App Password" de Gmail, no tu contraseña normal.'
-                );
-            }
-            if (error.message.includes('EAUTH')) {
-                throw new Error(
-                    'Gmail SMTP: Error de autenticación. Verifica que hayas habilitado "Acceso de aplicaciones menos seguras" o uses una "App Password" de Gmail.'
-                );
-            }
-            if (error.message.includes('ECONNECTION') || error.message.includes('ETIMEDOUT')) {
-                throw new Error('Gmail SMTP: Error de conexión. Verifica tu conexión a internet.');
-            }
-        }
-
-        throw error;
-    }
+    throw error;
+  }
 };
