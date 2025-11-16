@@ -1,16 +1,16 @@
 import { SendWorkspaceInvitationEmailParams } from '@/types/interfaces/mail';
-import { APP_BASE_URL, createTransporter, GMAIL_USER, SMTP_FROM_NAME } from './client';
+import { APP_BASE_URL, createTransporter, MAIL_USER, MAIL_FROM_NAME } from './client';
 
 
 const buildInvitationUrl = (token: string) => {
-    const baseUrl = APP_BASE_URL;
-    return `${baseUrl}/accept-invitation?token=${encodeURIComponent(token)}`;
+  const baseUrl = APP_BASE_URL;
+  return `${baseUrl}/accept-invitation?token=${encodeURIComponent(token)}`;
 };
 
 const buildEmailHtml = (
-    workspaceName: string,
-    inviterName: string,
-    invitationUrl: string
+  workspaceName: string,
+  inviterName: string,
+  invitationUrl: string
 ) => `
   <!DOCTYPE html>
   <html lang="es">
@@ -86,9 +86,9 @@ const buildEmailHtml = (
 `;
 
 const buildEmailText = (
-    workspaceName: string,
-    inviterName: string,
-    invitationUrl: string
+  workspaceName: string,
+  inviterName: string,
+  invitationUrl: string
 ) => `
 ¡Has sido invitado a unirse a ${workspaceName}!
 
@@ -101,53 +101,53 @@ Este enlace expirará en 7 días. Si no esperabas esta invitación, puedes ignor
 `;
 
 export const sendWorkspaceInvitationEmail = async ({
-    email,
-    workspaceName,
-    inviterName,
-    token,
+  email,
+  workspaceName,
+  inviterName,
+  token,
 }: SendWorkspaceInvitationEmailParams) => {
-    const transporter = createTransporter();
+  const transporter = createTransporter();
 
-    if (!transporter) {
-        const errorMsg =
-            'Gmail SMTP no está configurado. Configura las variables de entorno GMAIL_USER y GMAIL_APP_PASSWORD.';
-        console.error(errorMsg);
-        throw new Error(errorMsg);
+  if (!transporter) {
+    const errorMsg =
+      'Gmail SMTP no está configurado. Configura las variables de entorno MAIL_USER y MAIL_APP_PASSWORD.';
+    console.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  const invitationUrl = buildInvitationUrl(token);
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"${MAIL_FROM_NAME}" <${MAIL_USER}>`,
+      to: email,
+      subject: `Invitación para unirte a ${workspaceName} en Entipedia`,
+      text: buildEmailText(workspaceName, inviterName, invitationUrl),
+      html: buildEmailHtml(workspaceName, inviterName, invitationUrl),
+    });
+
+    console.log('Workspace invitation email sent successfully:', info.messageId);
+    return { MessageId: info.messageId };
+  } catch (error) {
+    console.error('Gmail SMTP send error:', error);
+
+    if (error instanceof Error) {
+      if (error.message.includes('Invalid login')) {
+        throw new Error(
+          'Gmail SMTP: Credenciales inválidas. Verifica MAIL_USER y MAIL_APP_PASSWORD. Asegúrate de usar una "App Password" de Gmail, no tu contraseña normal.'
+        );
+      }
+      if (error.message.includes('EAUTH')) {
+        throw new Error(
+          'Gmail SMTP: Error de autenticación. Verifica que hayas habilitado "Acceso de aplicaciones menos seguras" o uses una "App Password" de Gmail.'
+        );
+      }
+      if (error.message.includes('ECONNECTION') || error.message.includes('ETIMEDOUT')) {
+        throw new Error('Gmail SMTP: Error de conexión. Verifica tu conexión a internet.');
+      }
     }
 
-    const invitationUrl = buildInvitationUrl(token);
-
-    try {
-        const info = await transporter.sendMail({
-            from: `"${SMTP_FROM_NAME}" <${GMAIL_USER}>`,
-            to: email,
-            subject: `Invitación para unirte a ${workspaceName} en Entipedia`,
-            text: buildEmailText(workspaceName, inviterName, invitationUrl),
-            html: buildEmailHtml(workspaceName, inviterName, invitationUrl),
-        });
-
-        console.log('Workspace invitation email sent successfully:', info.messageId);
-        return { MessageId: info.messageId };
-    } catch (error) {
-        console.error('Gmail SMTP send error:', error);
-
-        if (error instanceof Error) {
-            if (error.message.includes('Invalid login')) {
-                throw new Error(
-                    'Gmail SMTP: Credenciales inválidas. Verifica GMAIL_USER y GMAIL_APP_PASSWORD. Asegúrate de usar una "App Password" de Gmail, no tu contraseña normal.'
-                );
-            }
-            if (error.message.includes('EAUTH')) {
-                throw new Error(
-                    'Gmail SMTP: Error de autenticación. Verifica que hayas habilitado "Acceso de aplicaciones menos seguras" o uses una "App Password" de Gmail.'
-                );
-            }
-            if (error.message.includes('ECONNECTION') || error.message.includes('ETIMEDOUT')) {
-                throw new Error('Gmail SMTP: Error de conexión. Verifica tu conexión a internet.');
-            }
-        }
-
-        throw error;
-    }
+    throw error;
+  }
 };
 

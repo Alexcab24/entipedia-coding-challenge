@@ -109,7 +109,7 @@ export const registerUser = async (
             const errorMessage = emailError instanceof Error
                 ? emailError.message.includes('Gmail SMTP')
                     ? emailError.message
-                    : 'No pudimos enviar el correo de verificación. Verifica tu configuración de Gmail SMTP (GMAIL_USER y GMAIL_APP_PASSWORD).'
+                    : 'No pudimos enviar el correo de verificación. Verifica tu configuración de Gmail SMTP (MAIL_USER y MAIL_APP_PASSWORD).'
                 : 'No pudimos enviar el correo de verificación. Intenta nuevamente en unos minutos.';
 
             return buildErrorState(

@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
 
-export const GMAIL_USER = process.env.GMAIL_USER;
-export const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
-export const SMTP_FROM_NAME = process.env.SMTP_FROM_NAME || 'Entipedia';
+export const MAIL_USER = process.env.MAIL_USER;
+export const MAIL_APP_PASSWORD = process.env.MAIL_APP_PASSWORD;
+export const MAIL_FROM_NAME = process.env.MAIL_FROM_NAME || 'Entipedia';
 
 const fallbackBaseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -10,19 +10,18 @@ const fallbackBaseUrl = process.env.VERCEL_URL
 
 export const APP_BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL ??
-  process.env.APP_URL ??
   fallbackBaseUrl;
 
 export const createTransporter = () => {
-  if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
+  if (!MAIL_USER || !MAIL_APP_PASSWORD) {
     return null;
   }
 
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: GMAIL_USER,
-      pass: GMAIL_APP_PASSWORD,
+      user: MAIL_USER,
+      pass: MAIL_APP_PASSWORD,
     },
   });
 };
