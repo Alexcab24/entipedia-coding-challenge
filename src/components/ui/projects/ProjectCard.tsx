@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
 import { Project, ProjectPriority } from '@/lib/actions/projects/get-projects';
 import { MoreVertical, Calendar, Trash2, Edit } from 'lucide-react';
 import { format } from 'date-fns';
@@ -36,20 +35,12 @@ export default function ProjectCard({ project, onDelete, onEdit }: ProjectCardPr
         attributes,
         listeners,
         setNodeRef,
-        transform,
         isDragging,
     } = useDraggable({
         id: project.id,
     });
 
-
-
-    const style = transform ? {
-        transform: CSS.Translate.toString(transform),
-        willChange: 'transform',
-    } : undefined;
-
-const handleDelete = (e: React.MouseEvent) => {
+    const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
         onDelete(project);
         setIsMenuOpen(false);
@@ -87,11 +78,10 @@ const handleDelete = (e: React.MouseEvent) => {
     return (
         <div
             ref={setNodeRef}
-            style={style}
             {...listeners}
             {...attributes}
             className={cn(
-                "group bg-gradient-to-br from-card via-card/95 to-card/90 border border-border/60 rounded-lg p-4 border-l-4 border-l-transparent hover:border-l-primary hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md overflow-hidden",
+                "group bg-linear-to-br from-card via-card/95 to-card/90 border border-border/60 rounded-lg p-4 border-l-4 border-l-transparent hover:border-l-primary hover:bg-linear-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md overflow-hidden",
                 isDragging && "opacity-40"
             )}
         >

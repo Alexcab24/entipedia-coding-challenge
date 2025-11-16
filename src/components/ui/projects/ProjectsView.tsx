@@ -44,8 +44,7 @@ export default function ProjectsView({
                 toast.error(result.message || 'Error al actualizar el proyecto');
                 router.refresh();
             }
-        } catch (error) {
-            console.error('Error updating project status:', error);
+       } catch {
             toast.error('Error al actualizar el proyecto');
             router.refresh();
         }

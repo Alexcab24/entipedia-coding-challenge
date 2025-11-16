@@ -52,10 +52,11 @@ export default function CreateFileDialog({
     const [isPending, startTransition] = useTransition();
     const [uploadMethod, setUploadMethod] = useState<UploadMethod>('file');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    console.log('selectedFile', selectedFile?.type);
+    const [isDragging, setIsDragging] = useState(false);
     const processedSuccessRef = useRef(false);
     const onSuccessRef = useRef(onSuccess);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const dropZoneRef = useRef<HTMLDivElement>(null);
     const [state, formAction] = useActionState(
         uploadFile,
         uploadFileInitialState
@@ -94,6 +95,7 @@ export default function CreateFileDialog({
             reset();
             setSelectedFile(null);
             setUploadMethod('file');
+            setIsDragging(false);
             processedSuccessRef.current = false;
         }
     }, [open, reset]);
@@ -119,21 +121,12 @@ export default function CreateFileDialog({
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-
         if (file) {
-
-            //deteccion automatica de nombre y tipo de archivo
-            setSelectedFile(file);
-            setValue('name', file.name);
-
-            const extension = file.type.split('/')[1];
-            console.log('extension: ', extension);
-            if (extension === 'pdf') setValue('type', 'pdf');
-            else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension || '')) setValue('type', 'image');
-            else if (['mp4', 'avi', 'mov', 'wmv', 'flv'].includes(extension || '')) setValue('type', 'video');
-            else if (['mp3', 'wav', 'ogg', 'flac'].includes(extension || '')) setValue('type', 'audio');
-            else if (['doc', 'docx', 'txt', 'rtf'].includes(extension || '')) setValue('type', 'document');
-            else setValue('type', 'other');
+            if (!(file instanceof File)) {
+                toast.error('Tipo de archivo no válido');
+                return;
+            }
+            processFile(file);
         }
     };
 
@@ -145,8 +138,99 @@ export default function CreateFileDialog({
         }
     };
 
+    const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+
+    const processFile = (file: File) => {
+
+        if (file.size === 0) {
+            toast.error('El archivo está vacío');
+            return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            toast.error(`El archivo es demasiado grande. El tamaño máximo es ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+            return;
+        }
+
+        if (!file.type || !file.name) {
+            toast.error('El archivo no es válido');
+            return;
+        }
+
+        setSelectedFile(file);
+        setValue('name', file.name);
+
+        const extension = file.type.split('/')[1];
+        if (extension === 'pdf') setValue('type', 'pdf');
+        else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension || '')) setValue('type', 'image');
+        else if (['mp4', 'avi', 'mov', 'wmv', 'flv'].includes(extension || '')) setValue('type', 'video');
+        else if (['mp3', 'wav', 'ogg', 'flac'].includes(extension || '')) setValue('type', 'audio');
+        else if (['doc', 'docx', 'txt', 'rtf'].includes(extension || '')) setValue('type', 'document');
+        else setValue('type', 'other');
+    };
+
+    const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer.types.includes('Files')) {
+            setIsDragging(true);
+        }
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!dropZoneRef.current?.contains(e.relatedTarget as Node)) {
+            setIsDragging(false);
+        }
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer.types.includes('Files')) {
+            e.dataTransfer.dropEffect = 'copy';
+        }
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+
+
+            if (!(file instanceof File)) {
+                toast.error('Tipo de archivo no válido');
+                return;
+            }
+
+
+            if (uploadMethod === 'url') {
+                setUploadMethod('file');
+            }
+
+            processFile(file);
+        }
+    };
+
     const onSubmit = (data: CreateFileFormData) => {
         if (isPending || processedSuccessRef.current) {
+            return;
+        }
+
+
+        if (uploadMethod === 'file' && !selectedFile) {
+            toast.error('Por favor selecciona un archivo');
+            return;
+        }
+
+        if (uploadMethod === 'url' && !data.url) {
+            toast.error('Por favor proporciona una URL');
             return;
         }
 
@@ -154,17 +238,27 @@ export default function CreateFileDialog({
         formData.append('companyId', companyId);
         formData.append('name', data.name);
         formData.append('type', data.type);
-        if (selectedFile) {
-            formData.append('file', selectedFile);
-        }
-        formData.append('url', data.url || '');
-        if (data.description) formData.append('description', data.description);
 
-        startTransition(async () => {
+
+        if (uploadMethod === 'file' && selectedFile) {
+
+            if (!(selectedFile instanceof File) || selectedFile.size === 0) {
+                toast.error('El archivo no es válido');
+                return;
+            }
+            formData.append('file', selectedFile, selectedFile.name);
+        } else if (uploadMethod === 'url' && data.url) {
+            formData.append('url', data.url.trim());
+        }
+
+        if (data.description && data.description.trim()) {
+            formData.append('description', data.description.trim());
+        }
+
+        startTransition(() => {
             try {
                 formAction(formData);
             } catch (error) {
-                console.error('[CreateFileDialog] Error creating file:', error);
                 toast.error(`Error al crear el archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`);
             }
         });
@@ -234,7 +328,17 @@ export default function CreateFileDialog({
                                     Seleccionar archivo *
                                 </label>
                                 {!selectedFile ? (
-                                    <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/30">
+                                    <div
+                                        ref={dropZoneRef}
+                                        onDragEnter={handleDragEnter}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                        className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${isDragging
+                                                ? 'border-primary bg-primary/10 scale-[1.02] shadow-lg'
+                                                : 'border-border hover:border-primary/50 bg-muted/30'
+                                            }`}
+                                    >
                                         <input
                                             ref={fileInputRef}
                                             type="file"
@@ -242,10 +346,12 @@ export default function CreateFileDialog({
                                             className="hidden"
                                             id="file-upload"
                                         />
-                                        <label htmlFor="file-upload" className="cursor-pointer">
-                                            <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                                            <p className="text-sm font-medium text-foreground mb-1">
-                                                Haz clic para seleccionar un archivo
+                                        <label htmlFor="file-upload" className="cursor-pointer block">
+                                            <Upload className={`h-12 w-12 mx-auto mb-4 transition-colors ${isDragging ? 'text-primary scale-110' : 'text-muted-foreground'
+                                                }`} />
+                                            <p className={`text-sm font-medium mb-1 transition-colors ${isDragging ? 'text-primary' : 'text-foreground'
+                                                }`}>
+                                                {isDragging ? 'Suelta el archivo aquí' : 'Haz clic para seleccionar un archivo'}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
                                                 o arrastra y suelta aquí

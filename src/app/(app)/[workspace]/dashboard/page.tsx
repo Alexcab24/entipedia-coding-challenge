@@ -5,7 +5,11 @@ import { db } from '@/lib/db';
 import { companiesTable } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getDashboardStats } from '@/lib/actions/dashboard/get-dashboard-stats';
+import { getProjectsByStatus } from '@/lib/actions/dashboard/get-projects-by-status';
+import { getRecentClients } from '@/lib/actions/dashboard/get-recent-clients';
 import DashboardCard from '@/components/ui/dashboard/DashboardCard';
+import ProjectStatusChart from '@/components/ui/dashboard/ProjectStatusChart';
+import RecentClientsCard from '@/components/ui/dashboard/RecentClientsCard';
 import PageLoading from '@/components/ui/PageLoading';
 import { FolderKanban, Users, FileText, LayoutDashboard } from 'lucide-react';
 import { routes } from '@/router/routes';
@@ -21,12 +25,12 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     const session = await auth();
 
     if (!session?.user?.id) {
-        redirect('/');
+        redirect(routes.home);
     }
 
     const { workspace } = await params;
 
-    // Get workspace details
+    // obtener detalles de la empresa
     const [company] = await db
         .select()
         .from(companiesTable)
@@ -53,7 +57,11 @@ async function DashboardContent({
     workspace: string;
     companyName: string;
 }) {
-    const stats = await getDashboardStats(companyId);
+    const [stats, projectsByStatus, recentClients] = await Promise.all([
+        getDashboardStats(companyId),
+        getProjectsByStatus(companyId),
+        getRecentClients(companyId, 3),
+    ]);
 
     return (
         <div className="w-full space-y-8 pb-8">
@@ -105,6 +113,11 @@ async function DashboardContent({
                 />
             </div>
 
+
+            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+                <ProjectStatusChart data={projectsByStatus} />
+                <RecentClientsCard clients={recentClients} workspace={workspace} />
+            </div>
         </div>
     );
 }

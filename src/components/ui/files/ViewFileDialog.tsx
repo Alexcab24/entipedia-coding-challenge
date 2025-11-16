@@ -201,7 +201,7 @@ export default function ViewFileDialog({
 
             default:
                 return (
-                    <div className="flex flex-col items-center justify-center h-full min-h-[300px] sm:min-h-[400px] space-y-4 p-4 sm:p-6 md:p-8">
+                    <div className="flex flex-col items-center justify-center w-full h-full min-h-[300px] sm:min-h-[400px] space-y-4 p-4 sm:p-6 md:p-8">
                         <div className="p-4 sm:p-6 rounded-full bg-gray-100/20 dark:bg-gray-950/40 shrink-0">
                             <FileIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-500" />
                         </div>
@@ -212,11 +212,11 @@ export default function ViewFileDialog({
                             <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
                                 Este tipo de archivo no se puede mostrar en el visor. Puedes descargarlo para verlo.
                             </p>
-                            <div className="pt-4">
+                            <div className="pt-4 w-full flex justify-center">
                                 <Button
                                     variant="primary"
                                     onClick={handleDownload}
-                                    className="flex items-center gap-2"
+                                    className="flex items-center justify-center gap-2"
                                 >
                                     <Download className="h-4 w-4" />
                                     Descargar Archivo
@@ -246,7 +246,7 @@ export default function ViewFileDialog({
                                 )}
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center justify-center gap-2 shrink-0">
                             {!isUrlFile(file) && (
                                 <Button
                                     variant="ghost"

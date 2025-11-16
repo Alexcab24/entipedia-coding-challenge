@@ -15,6 +15,7 @@ export const authConfig: NextAuthConfig = {
         newUser: '/',
         signOut: '/logout',
     },
+    trustHost: true,
     callbacks: {
         async session({ session, token }) {
             if (session.user && token.sub) {

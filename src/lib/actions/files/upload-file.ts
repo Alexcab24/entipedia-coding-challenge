@@ -34,6 +34,25 @@ export async function uploadFile(
         const url = formData.get('url');
         const description = formData.get('description');
 
+
+        if (!name || !type || !companyId) {
+            return {
+                ...uploadFileInitialState,
+                status: 'error',
+                message: 'Faltan campos requeridos: nombre, tipo o empresa',
+                fieldErrors: {},
+            };
+        }
+
+        if (!file && !url) {
+            return {
+                ...uploadFileInitialState,
+                status: 'error',
+                message: 'Debes proporcionar un archivo o una URL',
+                fieldErrors: {},
+            };
+        }
+
         console.log('[uploadFile] Iniciando procesamiento:', {
             name,
             type,
@@ -41,21 +60,46 @@ export async function uploadFile(
             hasFile: !!file,
             fileSize: file instanceof File ? file.size : 0,
             fileName: file instanceof File ? file.name : null,
+            fileType: file instanceof File ? file.type : null,
             hasUrl: !!url,
         });
 
         let fileInstance: File | undefined;
         if (file instanceof File) {
-            if (file.size === 0 && file.name === '') {
-                fileInstance = undefined;
-            } else {
-                fileInstance = file;
-                console.log('[uploadFile] Archivo detectado:', {
-                    name: file.name,
-                    size: file.size,
-                    type: file.type,
-                });
+            if (file.size === 0) {
+                return {
+                    ...uploadFileInitialState,
+                    status: 'error',
+                    message: 'El archivo está vacío',
+                    fieldErrors: { file: 'El archivo está vacío' },
+                };
             }
+
+
+            const MAX_SIZE = 100 * 1024 * 1024;
+            if (file.size > MAX_SIZE) {
+                return {
+                    ...uploadFileInitialState,
+                    status: 'error',
+                    message: `El archivo es demasiado grande. El tamaño máximo es ${MAX_SIZE / 1024 / 1024}MB`,
+                    fieldErrors: { file: 'El archivo excede el tamaño máximo permitido' },
+                };
+            }
+
+            fileInstance = file;
+            console.log('[uploadFile] Archivo detectado:', {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+            });
+        } else if (file) {
+
+            return {
+                ...uploadFileInitialState,
+                status: 'error',
+                message: 'El archivo proporcionado no es válido',
+                fieldErrors: { file: 'El archivo no es válido' },
+            };
         }
 
         //validar con zod
@@ -173,9 +217,6 @@ export async function uploadFile(
             }
 
         } else {
-
-
-
             //subida de archivo por url
             if (!validatedUrl) {
                 return {
