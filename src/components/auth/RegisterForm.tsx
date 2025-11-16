@@ -29,14 +29,6 @@ const SubmitButton = () => {
 const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, invitationToken }) => {
   const [state, formAction] = useActionState(registerUser, registerInitialState);
 
-
-  const handleFormAction = async (formData: FormData) => {
-    if (invitationToken) {
-      formData.append('invitationToken', invitationToken);
-    }
-    return formAction(formData);
-  };
-
   return (
     <div className="w-full">
       <div className="text-center mb-6 sm:mb-8">
@@ -48,7 +40,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, invitation
         </p>
       </div>
 
-      <form action={handleFormAction} className="space-y-4 sm:space-y-6" noValidate>
+      <form action={formAction} className="space-y-4 sm:space-y-6" noValidate>
+        {invitationToken && (
+          <input type="hidden" name="invitationToken" value={invitationToken} />
+        )}
         {state.status === 'error' && state.message && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 sm:p-4 text-xs sm:text-sm text-destructive">
             <div className="flex items-start gap-2">
