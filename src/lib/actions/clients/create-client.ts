@@ -213,11 +213,11 @@ export async function createClient(
             };
         }
 
-        
+
         if (error instanceof Error) {
             const errorMsg = error.message.toLowerCase();
 
-           
+
             if (errorMsg.includes('unique') || errorMsg.includes('duplicate') || errorMsg.includes('23505')) {
                 if (errorMsg.includes('email') || errorMsg.includes('clients_email_unique')) {
                     return {
