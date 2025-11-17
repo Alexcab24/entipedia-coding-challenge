@@ -62,8 +62,19 @@ export default function ViewFileDialog({
 
     if (!file) return null;
 
-    const handleDownload = () => {
-        window.open(file.url, '_blank');
+    const handleDownload = async () => {
+
+        try {
+            const response = await fetch(file.url);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            a.click();
+        } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+        }
     };
 
     const handleOpenExternal = () => {
