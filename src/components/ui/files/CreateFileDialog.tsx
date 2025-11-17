@@ -160,12 +160,37 @@ export default function CreateFileDialog({
         setSelectedFile(file);
         setValue('name', file.name);
 
-        const extension = file.type.split('/')[1];
-        if (extension === 'pdf') setValue('type', 'pdf');
-        else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension || '')) setValue('type', 'image');
-        else if (['mp4', 'avi', 'mov', 'wmv', 'flv'].includes(extension || '')) setValue('type', 'video');
-        else if (['mp3', 'wav', 'ogg', 'flac'].includes(extension || '')) setValue('type', 'audio');
-        else if (['doc', 'docx', 'txt', 'rtf'].includes(extension || '')) setValue('type', 'document');
+        const mimeType = file.type?.toLowerCase() || '';
+        const extension = file.name.split('.').pop()?.toLowerCase() || '';
+
+        const isPdf = extension === 'pdf' || mimeType === 'application/pdf';
+        const isImage =
+            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension) ||
+            mimeType.startsWith('image/');
+        const isVideo =
+            ['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(extension) ||
+            mimeType.startsWith('video/');
+        const isAudio =
+            ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(extension) ||
+            mimeType.startsWith('audio/');
+        const isDocument =
+            ['doc', 'docx', 'txt', 'rtf', 'odt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension) ||
+            [
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/rtf',
+                'text/plain',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            ].includes(mimeType);
+
+        if (isPdf) setValue('type', 'pdf');
+        else if (isImage) setValue('type', 'image');
+        else if (isVideo) setValue('type', 'video');
+        else if (isAudio) setValue('type', 'audio');
+        else if (isDocument) setValue('type', 'document');
         else setValue('type', 'other');
     };
 
@@ -265,13 +290,13 @@ export default function CreateFileDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange} >
             {state.status === 'error' && state.message && (
                 <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
                     {state.message}
                 </div>
             )}
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto rounded-lg">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Upload className="h-5 w-5" />
@@ -291,7 +316,7 @@ export default function CreateFileDialog({
                         <button
                             type="button"
                             onClick={() => setUploadMethod('file')}
-                            className={`p-4 rounded-xl border-2 transition-all ${uploadMethod === 'file'
+                            className={`p-4 rounded-xl border-2 transition-all cursor-pointer duration-300 ${uploadMethod === 'file'
                                 ? 'border-primary bg-primary/10 shadow-md'
                                 : 'border-border hover:border-primary/50 bg-background'
                                 }`}
@@ -306,7 +331,7 @@ export default function CreateFileDialog({
                         <button
                             type="button"
                             onClick={() => setUploadMethod('url')}
-                            className={`p-4 rounded-xl border-2 transition-all ${uploadMethod === 'url'
+                            className={`p-4 rounded-xl border-2 transition-all cursor-pointer duration-300 ${uploadMethod === 'url'
                                 ? 'border-primary bg-primary/10 shadow-md'
                                 : 'border-border hover:border-primary/50 bg-background'
                                 }`}
@@ -335,8 +360,8 @@ export default function CreateFileDialog({
                                         onDragLeave={handleDragLeave}
                                         onDrop={handleDrop}
                                         className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${isDragging
-                                                ? 'border-primary bg-primary/10 scale-[1.02] shadow-lg'
-                                                : 'border-border hover:border-primary/50 bg-muted/30'
+                                            ? 'border-primary bg-primary/10 scale-[1.02] shadow-lg'
+                                            : 'border-border hover:border-primary/50 bg-muted/30'
                                             }`}
                                     >
                                         <input
@@ -476,16 +501,17 @@ export default function CreateFileDialog({
                         )}
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter >
                         <Button
                             type="button"
+                            className="cursor-pointer"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
                             disabled={isPending}
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" variant="primary" disabled={isPending || (uploadMethod === 'file' && !selectedFile) || (uploadMethod === 'url' && !watch('url'))}>
+                        <Button type="submit" variant="primary" disabled={isPending || (uploadMethod === 'file' && !selectedFile) || (uploadMethod === 'url' && !watch('url'))} className="cursor-pointer">
                             {isPending ? (
                                 <>
                                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
