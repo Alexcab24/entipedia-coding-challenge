@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { Project, ProjectPriority, ProjectStatus } from '@/lib/actions/projects/get-projects';
 import { MoreVertical, Calendar, Trash2, Edit } from 'lucide-react';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '../popover';
+import { formatDateDisplay } from '@/lib/utils/date';
 
 interface ProjectCardProps {
     project: Project;
@@ -207,7 +206,10 @@ export default function ProjectCard({
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Calendar className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">
-                        {format(new Date(project.createdAt), 'dd MMM', { locale: es })}
+                        {formatDateDisplay(project.createdAt, {
+                            day: '2-digit',
+                            month: 'short',
+                        })}
                     </span>
                 </div>
             </div>

@@ -2,10 +2,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../card';
 import { User, Mail, Building2 } from 'lucide-react';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import Link from 'next/link';
 import { routes } from '@/router/routes';
+import { formatDateDisplay } from '@/lib/utils/date';
 
 interface RecentClient {
     id: string;
@@ -71,7 +70,11 @@ export default function RecentClientsCard({ clients, workspace }: RecentClientsC
                                             </p>
                                         </div>
                                         <p className="text-xs text-muted-foreground mt-1">
-                                            {format(new Date(client.createdAt), "d 'de' MMMM, yyyy", { locale: es })}
+                                            {formatDateDisplay(client.createdAt, {
+                                                day: 'numeric',
+                                                month: 'long',
+                                                year: 'numeric',
+                                            })}
                                         </p>
                                     </div>
                                 </div>

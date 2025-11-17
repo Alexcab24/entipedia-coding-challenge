@@ -10,8 +10,7 @@ import {
 import { File } from '@/lib/actions/files/get-files';
 import Button from '../Button';
 import { Trash2, Download, ExternalLink, FileText, Image, Video, Music, FileIcon, MoreVertical, Link2 } from 'lucide-react';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatDateDisplay } from '@/lib/utils/date';
 
 interface FilesTableProps {
     files: File[];
@@ -216,7 +215,11 @@ export default function FilesTable({
                                     </TableCell>
                                     <TableCell className="px-6 py-5 text-sm">
                                         <span className="text-muted-foreground">
-                                            {format(new Date(file.createdAt), 'PPP', { locale: es })}
+                                            {formatDateDisplay(file.createdAt, {
+                                                day: 'numeric',
+                                                month: 'long',
+                                                year: 'numeric',
+                                            })}
                                         </span>
                                     </TableCell>
                                     <TableCell className="text-right px-6 py-5">
