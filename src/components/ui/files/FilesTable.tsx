@@ -86,9 +86,38 @@ export default function FilesTable({
     onDelete,
     onView,
 }: FilesTableProps) {
-    const handleDownload = (file: File) => {
-        window.open(file.url, '_blank');
+    const handleDownload = async (file: File) => {
+        if (isUrlFile(file)) {
+            window.open(file.url, '_blank');
+            return;
+        }
+
+        try {
+            const response = await fetch(file.url);
+
+            if (!response.ok) {
+                throw new Error("No se pudo descargar el archivo");
+            }
+
+            const blob = await response.blob();
+
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name || "archivo";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+            if (file.url) window.open(file.url, "_blank");
+        }
     };
+
+
 
     return (
         <div className="hidden lg:flex flex-col rounded-xl border border-border/60 bg-card shadow-md overflow-hidden max-h-[600px]">
