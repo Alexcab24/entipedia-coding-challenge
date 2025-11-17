@@ -2,17 +2,18 @@
 
 import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { Project, ProjectPriority } from '@/lib/actions/projects/get-projects';
+import { Project, ProjectPriority, ProjectStatus } from '@/lib/actions/projects/get-projects';
 import { MoreVertical, Calendar, Trash2, Edit } from 'lucide-react';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '../popover';
+import { formatDateDisplay } from '@/lib/utils/date';
 
 interface ProjectCardProps {
     project: Project;
     onDelete: (project: Project) => void;
     onEdit?: (project: Project) => void;
+    onStatusChange?: (projectId: string, status: ProjectStatus) => void;
+    statusOptions?: { value: ProjectStatus; label: string }[];
 }
 
 const priorityColors: Record<ProjectPriority, string> = {
@@ -29,8 +30,27 @@ const priorityLabels: Record<ProjectPriority, string> = {
     urgent: 'Urgente',
 };
 
-export default function ProjectCard({ project, onDelete, onEdit }: ProjectCardProps) {
+const statusLabels: Record<ProjectStatus, string> = {
+    active: 'Activo',
+    inactive: 'Inactivo',
+    completed: 'Completado',
+    cancelled: 'Cancelado',
+};
+
+export default function ProjectCard({
+    project,
+    onDelete,
+    onEdit,
+    onStatusChange,
+    statusOptions,
+}: ProjectCardProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const availableStatusOptions =
+        statusOptions ??
+        (Object.keys(statusLabels) as ProjectStatus[]).map((status) => ({
+            value: status,
+            label: statusLabels[status],
+        }));
     const {
         attributes,
         listeners,
@@ -50,6 +70,14 @@ export default function ProjectCard({ project, onDelete, onEdit }: ProjectCardPr
         e.stopPropagation();
         if (onEdit) {
             onEdit(project);
+        }
+        setIsMenuOpen(false);
+    };
+
+    const handleStatusChange = (status: ProjectStatus) => (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onStatusChange && status !== project.status) {
+            onStatusChange(project.id, status);
         }
         setIsMenuOpen(false);
     };
@@ -110,8 +138,7 @@ export default function ProjectCard({ project, onDelete, onEdit }: ProjectCardPr
                         onClick={(e) => e.stopPropagation()}
                         onMouseDown={(e) => e.stopPropagation()}
                     >
-                        <div className="flex flex-col">
-
+                        <div className="flex flex-col gap-1">
                             {menuOptions.map((option) => (
                                 <button
                                     key={option.label}
@@ -122,6 +149,36 @@ export default function ProjectCard({ project, onDelete, onEdit }: ProjectCardPr
                                     <span>{option.label}</span>
                                 </button>
                             ))}
+                            {onStatusChange && (
+                                <div className="mt-1 border-t border-border/60 pt-2">
+                                    <p className="px-3 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                        Estado
+                                    </p>
+                                    <div className="flex flex-col gap-1">
+                                        {availableStatusOptions.map(({ value, label }) => {
+                                            const isActive = project.status === value;
+                                            return (
+                                                <button
+                                                    key={value}
+                                                    onClick={handleStatusChange(value)}
+                                                    className={cn(
+                                                        "flex items-center justify-between px-3 py-2 text-xs rounded-md transition-colors",
+                                                        isActive
+                                                            ? "bg-primary/10 text-primary font-semibold"
+                                                            : "text-muted-foreground hover:bg-muted"
+                                                    )}
+                                                    disabled={isActive}
+                                                >
+                                                    <span>{label}</span>
+                                                    {isActive && (
+                                                        <span className="text-[10px] uppercase tracking-wide">Actual</span>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </PopoverContent>
                 </Popover>
@@ -149,7 +206,10 @@ export default function ProjectCard({ project, onDelete, onEdit }: ProjectCardPr
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Calendar className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">
-                        {format(new Date(project.createdAt), 'dd MMM', { locale: es })}
+                        {formatDateDisplay(project.createdAt, {
+                            day: '2-digit',
+                            month: 'short',
+                        })}
                     </span>
                 </div>
             </div>

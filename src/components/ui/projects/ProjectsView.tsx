@@ -1,9 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import KanbanBoard from './KanbanBoard';
+import dynamic from 'next/dynamic';
 import DeleteProjectDialog from './DeleteProjectDialog';
 import EditProjectDialog from './EditProjectDialog';
+const KanbanBoard = dynamic(() => import('./KanbanBoard'), {
+    ssr: false,
+});
 import { Project, ProjectStatus } from '@/lib/actions/projects/get-projects';
 import { updateProjectStatus } from '@/lib/actions/projects/update-project';
 import { deleteProject } from '@/lib/actions/projects/delete-project';
@@ -44,7 +47,7 @@ export default function ProjectsView({
                 toast.error(result.message || 'Error al actualizar el proyecto');
                 router.refresh();
             }
-       } catch {
+        } catch {
             toast.error('Error al actualizar el proyecto');
             router.refresh();
         }

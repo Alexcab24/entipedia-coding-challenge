@@ -96,7 +96,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, invitationTok
             : 'border-destructive/40 bg-destructive/10 text-destructive'
             }`}>
             <div className="flex items-start gap-2">
-              <span className={`font-semibold flex-shrink-0 ${state === 'EMAIL_NOT_VERIFIED' ? 'text-yellow-600' : 'text-destructive'}`}>•</span>
+              <span className={`font-semibold shrink-0 ${state === 'EMAIL_NOT_VERIFIED' ? 'text-yellow-600' : 'text-destructive'}`}>•</span>
               <div className="flex-1 min-w-0">
                 <p className="font-medium mb-1 text-xs sm:text-sm">
                   {state === 'EMAIL_NOT_VERIFIED' ? 'Correo no verificado' : 'Error al iniciar sesión'}
@@ -136,7 +136,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, invitationTok
                     </div>
                   </div>
                 ) : (
-                  <p className="text-xs sm:text-sm break-words">{state}</p>
+                  <p className="text-xs sm:text-sm wrap-break-word">{state}</p>
                 )}
               </div>
             </div>
@@ -182,7 +182,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, invitationTok
           </label>
           <a
             href={routes.forgotPassword}
-            className="text-xs sm:text-sm text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
+            className="text-xs sm:text-sm text-black dark:text-white hover:text-black/80 dark:hover:text-white/80 hover:underline transition-all duration-200 cursor-pointer"
           >
             ¿Olvidaste tu contraseña?
           </a>
@@ -203,7 +203,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, invitationTok
           <button
             type="button"
             onClick={onSwitchToRegister}
-            className="text-black font-medium hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
+            className="text-black dark:text-white font-medium hover:text-black/80 dark:hover:text-white/80 hover:underline transition-all duration-200 cursor-pointer"
           >
             Regístrate aquí
           </button>

@@ -12,6 +12,7 @@ import { getPendingInvitations } from '@/lib/actions/invitations/get-pending-inv
 import { PendingInvitation } from '@/types/interfaces/invitation';
 import { cancelInvitation } from '@/lib/actions/invitations/cancel-invitation';
 import { resendInvitation } from '@/lib/actions/invitations/resend-invitation';
+import { formatDateDisplay } from '@/lib/utils/date';
 
 interface InviteSectionProps {
     companyId: string;
@@ -183,7 +184,7 @@ export default function InviteSection({ companyId }: InviteSectionProps) {
                                             </div>
                                             <p className="text-xs text-muted-foreground mt-1">
                                                 Invitado por {invitation.inviterName || 'Usuario'} •{' '}
-                                                {new Date(invitation.createdAt).toLocaleDateString('es-ES', {
+                                                {formatDateDisplay(invitation.createdAt, {
                                                     day: 'numeric',
                                                     month: 'short',
                                                     year: 'numeric',

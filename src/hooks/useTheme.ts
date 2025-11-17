@@ -13,34 +13,15 @@ export function useTheme() {
         setMounted(true);
 
         const storedTheme = localStorage.getItem('theme') as Theme | null;
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const initialTheme = storedTheme || 'light';
 
-        const initialTheme = storedTheme || (systemPrefersDark ? 'dark' : 'light');
         setTheme(initialTheme);
-
 
         if (initialTheme === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
         }
-
-
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = (e: MediaQueryListEvent) => {
-            if (!localStorage.getItem('theme')) {
-                const newTheme = e.matches ? 'dark' : 'light';
-                setTheme(newTheme);
-                if (newTheme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            }
-        };
-
-        mediaQuery.addEventListener('change', handleChange);
-        return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
     const toggleTheme = () => {

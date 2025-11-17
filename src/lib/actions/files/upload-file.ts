@@ -86,12 +86,12 @@ export async function uploadFile(
                 };
             }
 
-            fileInstance = file;
-            console.log('[uploadFile] Archivo detectado:', {
-                name: file.name,
-                size: file.size,
-                type: file.type,
-            });
+                fileInstance = file;
+                console.log('[uploadFile] Archivo detectado:', {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                });
         } else if (file) {
 
             return {
