@@ -224,7 +224,7 @@ export default function InviteSection({ companyId }: InviteSectionProps) {
                     <p className="font-medium text-foreground mb-1">Sobre las invitaciones</p>
                     <p>
                         Los usuarios recibirán un correo electrónico con un enlace para unirse al workspace.
-                        Las invitaciones expiran después de 7 días. Puedes reenviar o cancelar invitaciones pendientes.
+                        Las invitaciones expiran después de 2 días. Puedes reenviar o cancelar invitaciones pendientes.
                     </p>
                 </div>
             </div>
