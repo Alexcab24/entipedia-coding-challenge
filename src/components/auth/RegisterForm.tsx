@@ -47,10 +47,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, invitation
         {state.status === 'error' && state.message && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 sm:p-4 text-xs sm:text-sm text-destructive">
             <div className="flex items-start gap-2">
-              <span className="text-destructive font-semibold flex-shrink-0">•</span>
+              <span className="text-destructive font-semibold shrink-0">•</span>
               <div className="flex-1 min-w-0">
                 <p className="font-medium mb-1">Error al crear la cuenta</p>
-                <p className="break-words">{state.message}</p>
+                <p className="wrap-break-word">{state.message}</p>
               </div>
             </div>
           </div>
@@ -112,21 +112,21 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, invitation
           <input
             type="checkbox"
             id="terms"
-            className="mt-1 rounded border-input text-primary focus:ring-2 focus:ring-ring w-4 h-4 flex-shrink-0"
+            className="mt-1 rounded border-input text-primary focus:ring-2 focus:ring-ring w-4 h-4 shrink-0"
             required
           />
           <label htmlFor="terms" className="ml-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
             Acepto los{' '}
             <a
               href="#"
-              className="text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
+              className="text-black dark:text-white hover:text-black/80 dark:hover:text-white/80 hover:underline transition-all duration-200 cursor-pointer"
             >
               términos y condiciones
             </a>{' '}
             y la{' '}
             <a
               href="#"
-              className="text-black hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
+              className="text-black dark:text-white hover:text-black/80 dark:hover:text-white/80 hover:underline transition-all duration-200 cursor-pointer"
             >
               política de privacidad
             </a>
@@ -142,7 +142,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, invitation
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="text-black font-medium hover:text-black/80 hover:underline transition-all duration-200 cursor-pointer"
+            className="text-black dark:text-white font-medium hover:text-black/80 dark:hover:text-white/80 hover:underline transition-all duration-200 cursor-pointer"
           >
             Inicia sesión aquí
           </button>
