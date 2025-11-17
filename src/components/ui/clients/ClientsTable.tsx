@@ -23,8 +23,7 @@ import {
 import Input from '../Input';
 import { Popover, PopoverContent, PopoverTrigger } from '../popover';
 import { Calendar } from '../calendar';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatDatePPP } from '@/lib/utils/date';
 import { FileText, User, Building2, Mail, Phone, DollarSign, Calendar as CalendarIcon, StickyNote, MoreVertical } from 'lucide-react';
 
 interface ClientsTableProps {
@@ -235,7 +234,7 @@ export default function ClientsTable({
                                 variant="outline"
                                 className="w-full justify-start text-left font-normal"
                             >
-                                {editValue ? format(parseLocalDateString(editValue), 'PPP', { locale: es }) : 'Seleccionar fecha'}
+                                {editValue ? formatDatePPP(parseLocalDateString(editValue)) : 'Seleccionar fecha'}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -421,7 +420,7 @@ export default function ClientsTable({
                     </TableHeader>
                 </table>
             </div>
-           {/* Body de la tabla */}
+            {/* Body de la tabla */}
             <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto custom-scrollbar">
                 <table className="w-full border-collapse caption-bottom text-sm" style={{ tableLayout: 'fixed' }}>
                     <TableBody className="bg-background/50 divide-y divide-border/20">
@@ -438,7 +437,7 @@ export default function ClientsTable({
                             clients.map((client) => (
                                 <TableRow
                                     key={client.id}
-                                    className="border-0 border-b-2 border-l-4 border-l-transparent hover:border-l-primary hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 group"
+                                    className="border-0 border-b-2 border-l-4 border-l-transparent hover:border-l-primary hover:bg-linear-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 group"
                                 >
                                     {renderEditableCell(client, 'name', client.name, 'text')}
                                     {renderEditableCell(

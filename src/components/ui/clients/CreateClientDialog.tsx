@@ -25,9 +25,7 @@ import { createClient } from '@/lib/actions/clients/create-client';
 import { createClientInitialState } from '@/lib/actions/clients/create-client.types';
 import { Popover, PopoverContent, PopoverTrigger } from '../popover';
 import { Calendar } from '../calendar';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { formatDateToLocalString, parseLocalDateString } from '@/lib/utils/date';
+import { formatDatePPP, formatDateToLocalString, parseLocalDateString } from '@/lib/utils/date';
 import { Loader2 } from 'lucide-react';
 import { CreateClientFormData, createClientFormSchema } from '@/lib/actions/clients/schemas/create-client.schema';
 import { toast } from 'sonner';
@@ -237,7 +235,7 @@ export default function CreateClientDialog({
                                         className="w-full justify-start text-left font-normal"
                                     >
                                         {dateFrom ? (
-                                            format(parseLocalDateString(dateFrom), 'PPP', { locale: es })
+                                            formatDatePPP(parseLocalDateString(dateFrom))
                                         ) : (
                                             <span>Seleccionar fecha</span>
                                         )}
@@ -275,7 +273,7 @@ export default function CreateClientDialog({
                                         className="w-full justify-start text-left font-normal"
                                     >
                                         {dateTo ? (
-                                            format(parseLocalDateString(dateTo), 'PPP', { locale: es })
+                                            formatDatePPP(parseLocalDateString(dateTo))
                                         ) : (
                                             <span>Seleccionar fecha</span>
                                         )}

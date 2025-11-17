@@ -51,3 +51,20 @@ export function formatDateDisplay(
         timeZone: timeZone || 'UTC',
     }).format(dateObj);
 }
+
+
+export function formatDatePPP(date: Date | string): string {
+    if (!date) return 'Seleccionar fecha';
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+    if (isNaN(dateObj.getTime())) {
+        return 'Seleccionar fecha';
+    }
+
+    return new Intl.DateTimeFormat('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+    }).format(dateObj);
+}
