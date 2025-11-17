@@ -17,8 +17,7 @@ import {
 import Input from '../Input';
 import { Popover, PopoverContent, PopoverTrigger } from '../popover';
 import { Calendar as CalendarComponent } from '../calendar';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatDatePPP } from '@/lib/utils/date';
 
 interface ClientCardProps {
     client: Client;
@@ -290,7 +289,7 @@ export default function ClientCard({
                                     variant="outline"
                                     className="flex-1 justify-start text-left font-normal rounded-xl border-2 h-12 text-base"
                                 >
-                                    {editValue ? format(parseLocalDateString(editValue), 'PPP', { locale: es }) : 'Seleccionar fecha'}
+                                    {editValue ? formatDatePPP(parseLocalDateString(editValue)) : 'Seleccionar fecha'}
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" align="start">
