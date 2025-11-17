@@ -135,6 +135,11 @@ export default function KanbanBoard({
                                         project={project}
                                         onDelete={onDelete}
                                         onEdit={onEdit}
+                                        onStatusChange={onStatusChange}
+                                        statusOptions={statusOrder.map((statusValue) => ({
+                                            value: statusValue,
+                                            label: statusConfig[statusValue].label,
+                                        }))}
                                     />
                                 ))}
                             </div>
