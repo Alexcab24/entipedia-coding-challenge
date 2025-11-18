@@ -107,16 +107,21 @@ export async function createClient(
     }
 
     try {
+        const getStringValue = (key: string) => {
+            const value = formData.get(key);
+            return typeof value === 'string' ? value : undefined;
+        };
+
         const parsedResult = createClientSchema.safeParse({
-            companyId: formData.get('companyId'),
-            name: formData.get('name'),
-            type: formData.get('type'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            value: formData.get('value'),
-            dateFrom: formData.get('dateFrom'),
-            dateTo: formData.get('dateTo'),
-            notes: formData.get('notes'),
+            companyId: getStringValue('companyId'),
+            name: getStringValue('name'),
+            type: getStringValue('type'),
+            email: getStringValue('email'),
+            phone: getStringValue('phone'),
+            value: getStringValue('value'),
+            dateFrom: getStringValue('dateFrom'),
+            dateTo: getStringValue('dateTo'),
+            notes: getStringValue('notes'),
         });
 
         if (!parsedResult.success) {
