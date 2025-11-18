@@ -272,11 +272,9 @@ export default function CreateClientDialog({
                                         variant="outline"
                                         className="w-full justify-start text-left font-normal"
                                     >
-                                        {dateTo ? (
-                                            formatDatePPP(parseLocalDateString(dateTo))
-                                        ) : (
-                                            <span>Seleccionar fecha</span>
-                                        )}
+                                        {dateTo
+                                            ? formatDatePPP(parseLocalDateString(dateTo))
+                                            : '—'}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
